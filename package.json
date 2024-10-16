@@ -1,0 +1,31 @@
+{
+  "name": "interview-companion-electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+"scripts": {
+  "start": "npm run build && electron .",
+  "build": "webpack --config webpack.config.js",
+  "electron": "electron ."
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-draggable": "^4.4.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.8",
+    "@babel/preset-env": "^7.25.8",
+    "@babel/preset-react": "^7.25.7",
+    "babel-loader": "^9.2.1",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

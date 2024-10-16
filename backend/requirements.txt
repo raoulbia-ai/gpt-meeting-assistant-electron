@@ -1,0 +1,7 @@
+pytest
+pytest-asyncio
+python-dotenv==0.19.2
+pyaudio==0.2.11
+websockets==10.1
+webrtcvad==2.0.10
+numpy==1.21.4
