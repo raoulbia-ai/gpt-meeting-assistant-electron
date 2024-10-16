@@ -170,22 +170,23 @@ export default function FloatingPrompter() {
               {isListening ? 'Stop Listening' : 'Start Listening'}
             </button>
             
-            <div style={{
+            <div style={{ 
               height: '200px',
               overflowY: 'auto',
               marginBottom: '16px',
               backgroundColor: `rgba(30, 30, 30, ${opacity * 0.7})`,
               padding: '12px',
               borderRadius: '4px',
-              fontSize: '1.1rem',
+              fontSize: '18px',
+              color: 'white',
               lineHeight: '1.5',
-            }}>
-              <pre style={{ whiteSpace: 'pre-wrap', color: '#63b3ed', margin: 0 }}>
+              }}>
+              <pre style={{ whiteSpace: 'pre-wrap', color: 'white', margin: 0 }}>
                 {displayedResponse}
                 {currentResponse && (
                   <>
                     {displayedResponse && '\n\n'}
-                    <span style={{ color: '#48bb78' }}>{currentResponse}</span>
+                    <span style={{ color: 'white' }}>{currentResponse}</span>
                   </>
                 )}
               </pre>
