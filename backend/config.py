@@ -6,10 +6,10 @@ class Config:
         self.silence_threshold = 10
         self.cooldown_duration = 5
         self.min_buffer_size = 32000
-        self.max_buffer_wait_time = 5
+        self.max_buffer_wait_time = 5 
         self.chunk = 960
         self.channels = 1
-        self.rate = 32000
+        self.rate = 32000 # 48000
         self.frame_duration_ms = 30
         # Removed websocket_host and websocket_port as they are hardcoded in websocket_manager.py
         self.api_key = os.getenv("OPENAI_API_KEY")
