@@ -41,16 +41,8 @@ export default function FloatingPrompter() {
     (data) => {
       switch (data.type) {
         case 'status':
-          // Compare new status with last known status, but always allow state transition to 'idle'
-          if (
-            lastStatus.is_listening !== data.is_listening ||
-            lastStatus.is_paused !== data.is_paused ||
-            data.status === 'idle'  // Ensure we handle idle state properly
-          ) {
-            setLastStatus({ is_listening: data.is_listening, is_paused: data.is_paused });
-            setIsListening(data.is_listening);
-            setIsPaused(data.is_paused);
-          }
+          setIsListening(data.is_listening);
+          setIsPaused(data.is_paused);
           break;
           
           case 'transcript':
@@ -92,18 +84,18 @@ export default function FloatingPrompter() {
     } else if (responseData.type === 'response.complete') {
       setDisplayedResponse(currentResponse);
       setCurrentResponse('');
-  
-      // Log before sending pause command
       console.log('Complete response received. Pausing listening...');
-      // Automatically pause after the response completes
       sendWebSocketMessage('control', { action: 'pause_listening' });
-      setIsPaused(true);
+      setIsPaused(true);  // Update UI state to paused
     }
   }, [currentResponse]);
   
   
     
     const toggleListening = () => {
+      if (isPaused) {
+        return;  // Do nothing if paused
+      }
       if (isListening) {
         sendWebSocketMessage('control', { action: 'stop_listening' });
       } else {
@@ -169,6 +161,7 @@ export default function FloatingPrompter() {
             <button
               onClick={() => {
                 sendWebSocketMessage('control', { action: isPaused ? 'resume_listening' : 'pause_listening' });
+                setIsPaused(!isPaused);  // Optimistically update UI state
               }}
               style={{
                 background: 'none',
@@ -214,7 +207,7 @@ export default function FloatingPrompter() {
           <div style={{ padding: '16px' }}>
           <button 
             onClick={toggleListening}
-            disabled={false}  // Keep it enabled unless there are other reasons to disable it
+            disabled={isPaused}  // Disable when paused
             style={{
               width: '100%',
               padding: '12px',

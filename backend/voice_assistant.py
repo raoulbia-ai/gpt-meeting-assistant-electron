@@ -37,13 +37,19 @@ class VoiceAssistant:
         self.is_paused = False  # Ensure this line is present
 
     async def pause(self):
+        if self.is_paused:
+            return  # Already paused
         self.is_paused = True  # Set the paused flag
         self.audio_capture.stop_stream()  # Stop the audio stream
+        await self.websocket_manager.broadcast_status("paused", False)  # Broadcast paused status
         self.logger.info("Assistant paused")
 
     async def resume(self):
+        if not self.is_paused:
+            return  # Already running
         self.is_paused = False  # Reset the paused flag
         self.audio_capture.start_stream()  # Start the audio stream
+        await self.websocket_manager.broadcast_status("listening", True)  # Broadcast listening status
         self.logger.info("Assistant resumed")
 
     async def run(self):
@@ -203,7 +209,7 @@ class VoiceAssistant:
                     self.logger.debug("waiting_for_response set to False")
                     await self.websocket_manager.broadcast_status("idle", False)
                     self.response_processor.clear_transcript()
-                    await self.stop_listening()  # Automatically stop listening instead of pausing
+                    await self.pause()  # Automatically pause after completing the response
                 elif response['type'] == 'error':
                     error_message = response.get('error', {}).get('message', 'Unknown error')
                     error_code = response.get('error', {}).get('code', 'Unknown code')
