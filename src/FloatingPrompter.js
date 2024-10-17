@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 
 export default function FloatingPrompter() {
   const [isConnected, setIsConnected] = useState(false);
+  const [apiCallCount, setApiCallCount] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [currentResponse, setCurrentResponse] = useState('');
@@ -46,6 +47,9 @@ export default function FloatingPrompter() {
         case 'response':
           handleAssistantResponse(data.data);
           break;
+        case 'api_call_count':
+          setApiCallCount(data.count);
+          break;
         case 'error':
           setError(data.error.message);
           setShowAlert(true);
@@ -59,6 +63,10 @@ export default function FloatingPrompter() {
 
   const handleAssistantResponse = useCallback((responseData) => {
     if (responseData.type === 'response.audio_transcript.delta') {
+      // Clear previous responses when a new response starts
+      if (!currentResponse && displayedResponse) {
+        setDisplayedResponse('');
+      }
       setCurrentResponse(prev => prev + (responseData.delta || ''));
     } else if (responseData.type === 'response.complete') {
       setDisplayedResponse(currentResponse);
@@ -102,7 +110,7 @@ export default function FloatingPrompter() {
         top: '20px',
         left: '20px',
         width: '600px',
-        backgroundColor: `rgba(0, 0, 0, ${opacity})`,
+        backgroundColor: `rgba(0, 0, 0, ${opacity})`, // Use opacity state
         color: 'white',
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -200,7 +208,7 @@ export default function FloatingPrompter() {
             
             <div style={{ 
               height: '200px',
-              overflowY: 'auto',
+              overflowY: 'auto', // Enable vertical scrolling
               marginBottom: '16px',
               backgroundColor: `rgba(30, 30, 30, ${opacity * 0.7})`,
               padding: '12px',
@@ -220,6 +228,9 @@ export default function FloatingPrompter() {
               </pre>
             </div>
             
+            <div style={{ padding: '16px', color: 'white' }}>
+              <p>API Calls Made: {apiCallCount}</p>
+            </div>
             <div>
               <label style={{ display: 'block', marginBottom: '8px' }}>Opacity</label>
               <input

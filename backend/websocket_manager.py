@@ -75,6 +75,13 @@ class WebSocketManager:
         })
         await self.broadcast(message)
 
+    async def broadcast_api_call_count(self, count):
+        message = json.dumps({
+            'type': 'api_call_count',
+            'count': count
+        })
+        await self.broadcast(message)
+
     async def broadcast_error(self, error_message, error_code=None):
         message = json.dumps({
             'type': 'error',

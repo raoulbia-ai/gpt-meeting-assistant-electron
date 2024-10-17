@@ -10,9 +10,9 @@ function createWindow () {
       contextIsolation: false,
       enableRemoteModule: true
     },
-    transparent: false, // Change to false
-    frame: true,        // Change to true
-    backgroundColor: '#FFFFFF', // Set a visible background color
+    transparent: true, // Set to true for transparency
+    frame: false,      // Remove window frame
+    backgroundColor: '#00000000', // Fully transparent background
     hasShadow: true,
     visualEffectState: 'active'
   })

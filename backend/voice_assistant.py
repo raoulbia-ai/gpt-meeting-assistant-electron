@@ -160,6 +160,7 @@ class VoiceAssistant:
             await self.openai_client.send_audio(buffer)
             self.api_calls_made += 1
             self.logger.info(f"API call made. Total calls: {self.api_calls_made}")
+            await self.websocket_manager.broadcast_api_call_count(self.api_calls_made)
             await self.websocket_manager.broadcast_status("processing", False)
             return True
         except Exception as e:
