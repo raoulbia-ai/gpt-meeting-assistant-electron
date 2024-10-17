@@ -171,6 +171,7 @@ class VoiceAssistant:
             self.logger.info(f"API call made. Total calls: {self.api_calls_made}")
             await self.websocket_manager.broadcast_api_call_count(self.api_calls_made)
             await self.websocket_manager.broadcast_status("processing", False)
+            await self.pause()  # Automatically pause the assistant
             return True
         except Exception as e:
             self.logger.error(f"Error sending audio to API: {str(e)}", exc_info=True)
@@ -209,7 +210,6 @@ class VoiceAssistant:
                     self.logger.debug("waiting_for_response set to False")
                     await self.websocket_manager.broadcast_status("idle", False)
                     self.response_processor.clear_transcript()
-                    await self.pause()  # Automatically pause after completing the response
                 elif response['type'] == 'error':
                     error_message = response.get('error', {}).get('message', 'Unknown error')
                     error_code = response.get('error', {}).get('code', 'Unknown code')

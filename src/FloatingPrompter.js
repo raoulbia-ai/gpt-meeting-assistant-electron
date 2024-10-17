@@ -59,7 +59,6 @@ export default function FloatingPrompter() {
           break;
           
         case 'api_call_count':
-          setApiCallCount(data.count);
           break;
           
         case 'error':
@@ -85,17 +84,12 @@ export default function FloatingPrompter() {
       setDisplayedResponse(currentResponse);
       setCurrentResponse('');
       console.log('Complete response received. Pausing listening...');
-      sendWebSocketMessage('control', { action: 'pause_listening' });
-      setIsPaused(true);  // Update UI state to paused
     }
   }, [currentResponse]);
   
   
     
     const toggleListening = () => {
-      if (isPaused) {
-        return;  // Do nothing if paused
-      }
       if (isListening) {
         sendWebSocketMessage('control', { action: 'stop_listening' });
       } else {
@@ -161,7 +155,6 @@ export default function FloatingPrompter() {
             <button
               onClick={() => {
                 sendWebSocketMessage('control', { action: isPaused ? 'resume_listening' : 'pause_listening' });
-                setIsPaused(!isPaused);  // Optimistically update UI state
               }}
               style={{
                 background: 'none',
@@ -215,8 +208,6 @@ export default function FloatingPrompter() {
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: isPaused ? 'not-allowed' : 'pointer',  // Prevent interaction when paused
-              opacity: isPaused ? 0.5 : 1,  // Dim the button when it's disabled
               fontSize: '1rem',
               marginBottom: '16px',
               WebkitAppRegion: 'no-drag',
