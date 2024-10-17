@@ -20,7 +20,7 @@ function createWindow () {
   win.loadFile('index.html')
 
   // Uncomment the following line to open DevTools by default
-  // win.webContents.openDevTools()
+  win.webContents.openDevTools()
 
   // Make sure the window is always on top
   win.setAlwaysOnTop(true, 'floating')
