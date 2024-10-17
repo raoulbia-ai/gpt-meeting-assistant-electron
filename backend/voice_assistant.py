@@ -34,6 +34,15 @@ class VoiceAssistant:
         self.logger.info("VoiceAssistant initialized")
 
         self.process_audio_task = None
+        self.is_paused = False  # Ensure this line is present
+
+    async def pause(self):
+        self.is_paused = True  # Set the paused flag
+        self.logger.info("Assistant paused")
+
+    async def resume(self):
+        self.is_paused = False  # Reset the paused flag
+        self.logger.info("Assistant resumed")
 
     async def run(self):
         try:
@@ -297,16 +306,3 @@ if __name__ == "__main__":
     websocket_manager = WebSocketManager(assistant)
     assistant.websocket_manager = websocket_manager
     asyncio.run(assistant.run())
-class VoiceAssistant:
-    def __init__(self, config, audio_capture, openai_client, websocket_manager, response_processor):
-        # Existing initialization code...
-        self.is_paused = False  # Add this line
-        # ...
-
-    async def pause(self):
-        self.is_paused = True  # Set the paused flag
-        self.logger.info("Assistant paused")
-
-    async def resume(self):
-        self.is_paused = False  # Reset the paused flag
-        self.logger.info("Assistant resumed")
