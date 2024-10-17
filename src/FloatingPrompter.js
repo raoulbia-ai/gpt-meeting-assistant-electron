@@ -111,6 +111,11 @@ export default function FloatingPrompter() {
 
 
 
+  const togglePauseResume = () => {
+    sendWebSocketMessage('control', { action: isPaused ? 'resume_listening' : 'pause_listening' });
+    setIsPaused(!isPaused);  // Optimistically update the UI state
+  };
+
   const toggleMinimize = () => setIsMinimized(!isMinimized);
 
   useEffect(() => {
@@ -122,7 +127,21 @@ export default function FloatingPrompter() {
     };
   }, [connectWebSocket]);
 
-  return (
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.code === 'Space') {
+        event.preventDefault(); // Prevent default behavior like scrolling
+        togglePauseResume();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup the event listener on unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isPaused]); // Include isPaused in the dependency array
     <Draggable handle=".drag-handle">
       <div ref={containerRef} style={{
         position: 'fixed',
@@ -154,9 +173,7 @@ export default function FloatingPrompter() {
               {isMinimized ? '🗖' : '🗕'}
             </button>
             <button
-              onClick={() => {
-                sendWebSocketMessage('control', { action: isPaused ? 'resume_listening' : 'pause_listening' });
-              }}
+              onClick={togglePauseResume}
               style={{
                 background: 'none',
                 border: 'none',
