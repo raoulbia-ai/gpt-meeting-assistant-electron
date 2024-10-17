@@ -112,8 +112,9 @@ export default function FloatingPrompter() {
 
 
   const togglePauseResume = () => {
-    sendWebSocketMessage('control', { action: isPaused ? 'resume_listening' : 'pause_listening' });
-    setIsPaused(!isPaused);  // Optimistically update the UI state
+    const newIsPaused = !isPaused;
+    setIsPaused(newIsPaused);  // Update the state immediately
+    sendWebSocketMessage('control', { action: newIsPaused ? 'pause_listening' : 'resume_listening' });
   };
 
   const toggleMinimize = () => setIsMinimized(!isMinimized);
@@ -131,6 +132,7 @@ export default function FloatingPrompter() {
     const handleKeyDown = (event) => {
       if (event.code === 'Space') {
         event.preventDefault(); // Prevent default behavior like scrolling
+        event.stopPropagation();   // Prevent the event from triggering other handlers
         togglePauseResume();
       }
     };
@@ -189,7 +191,7 @@ export default function FloatingPrompter() {
               {isPaused ? 'Resume' : 'Pause'}
             </button>
 
-            <button onClick={() => window.close()} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1rem', WebkitAppRegion: 'no-drag' }}>
+            <button tabIndex="-1" onClick={() => window.close()} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1rem', WebkitAppRegion: 'no-drag' }}>
               ✖
             </button>
           </div>
