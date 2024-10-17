@@ -142,6 +142,8 @@ export default function FloatingPrompter() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isPaused]); // Include isPaused in the dependency array
+
+  return (
     <Draggable handle=".drag-handle">
       <div ref={containerRef} style={{
         position: 'fixed',
