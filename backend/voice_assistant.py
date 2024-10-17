@@ -72,6 +72,9 @@ class VoiceAssistant:
         self.logger.info("Started audio processing")
         try:
             while self.is_running:
+                if self.is_paused:
+                    await asyncio.sleep(0.1)  # Pause processing
+                    continue
                 try:
                     audio_chunk = await self.audio_capture.read_audio()
                 except Exception as e:
