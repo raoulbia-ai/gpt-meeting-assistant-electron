@@ -38,10 +38,12 @@ class VoiceAssistant:
 
     async def pause(self):
         self.is_paused = True  # Set the paused flag
+        self.audio_capture.stop_stream()  # Stop the audio stream
         self.logger.info("Assistant paused")
 
     async def resume(self):
         self.is_paused = False  # Reset the paused flag
+        self.audio_capture.start_stream()  # Start the audio stream
         self.logger.info("Assistant resumed")
 
     async def run(self):

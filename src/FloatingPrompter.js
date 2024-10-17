@@ -50,6 +50,7 @@ export default function FloatingPrompter() {
             setLastStatus({ is_listening: data.is_listening, is_paused: data.is_paused });
             setIsListening(data.is_listening);
             setIsPaused(data.is_paused);
+            setIsPaused(data.is_paused);
           }
           break;
           
@@ -168,13 +169,7 @@ export default function FloatingPrompter() {
             </button>
             <button
               onClick={() => {
-                if (isPaused) {
-                  sendWebSocketMessage('control', { action: 'resume_listening' });
-                  setIsPaused(false);  // Set to not paused
-                } else {
-                  sendWebSocketMessage('control', { action: 'pause_listening' });
-                  setIsPaused(true);  // Set to paused
-                }
+                sendWebSocketMessage('control', { action: isPaused ? 'resume_listening' : 'pause_listening' });
               }}
               style={{
                 background: 'none',
@@ -220,7 +215,7 @@ export default function FloatingPrompter() {
           <div style={{ padding: '16px' }}>
           <button 
             onClick={toggleListening}
-            disabled={isPaused}  // Disable the button when the system is paused
+            disabled={isPaused}  // Disable when paused
             style={{
               width: '100%',
               padding: '12px',
