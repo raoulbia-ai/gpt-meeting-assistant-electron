@@ -57,8 +57,9 @@ export default function FloatingPrompter() {
         case 'response':
           handleAssistantResponse(data.data);
           break;
-          
+
         case 'api_call_count':
+          setApiCallCount(data.count);  // Update the API call count state
           break;
           
         case 'error':
