@@ -52,12 +52,6 @@ class WebSocketManager:
                 self.logger.info("Listening resumed")
             else:
                 self.logger.warning(f"Unknown action received: {action}")
-        elif data['type'] == 'togglePause':
-            if self.is_paused:
-                await self.process_message({'type': 'control', 'action': 'resume_listening'}, websocket)
-            else:
-                await self.process_message({'type': 'control', 'action': 'pause_listening'}, websocket)
-            self.logger.warning(f"Unknown message type received: {data['type']}")
 
     async def broadcast_status(self, status, is_listening):
         message = json.dumps({

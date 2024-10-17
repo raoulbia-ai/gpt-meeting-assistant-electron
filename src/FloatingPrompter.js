@@ -5,7 +5,6 @@ export default function FloatingPrompter() {
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [currentResponse, setCurrentResponse] = useState('');
-  const [isPaused, setIsPaused] = useState(false);
   const [displayedResponse, setDisplayedResponse] = useState('');
   const [error, setError] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -40,10 +39,6 @@ export default function FloatingPrompter() {
         setIsListening(data.is_listening);
       }
 
-      if (isPaused) {
-        // Do not process incoming messages or update responses when paused
-        return;
-      }
 
       switch (data.type) {
         case 'response':
@@ -132,12 +127,7 @@ export default function FloatingPrompter() {
             </button>
             <button
               onClick={() => {
-                if (isPaused) {
-                  sendWebSocketMessage('control', { action: 'resume_listening' });
-                } else {
-                  sendWebSocketMessage('control', { action: 'pause_listening' });
-                }
-                setIsPaused(!isPaused);
+                sendWebSocketMessage('control', { action: isListening ? 'pause_listening' : 'resume_listening' });
               }}
               style={{
                 background: 'none',
