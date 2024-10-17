@@ -45,13 +45,11 @@ class WebSocketManager:
             if action == 'start_listening':
                 await self.assistant.start_listening()
             elif action == 'pause_listening':
-                self.is_paused = True
+                await self.assistant.pause()  # Call the pause method
                 self.logger.info("Listening paused")
             elif action == 'resume_listening':
-                self.is_paused = False
+                await self.assistant.resume()  # Call the resume method
                 self.logger.info("Listening resumed")
-                self.assistant.stop()
-                await self.stop()
             else:
                 self.logger.warning(f"Unknown action received: {action}")
         elif data['type'] == 'togglePause':

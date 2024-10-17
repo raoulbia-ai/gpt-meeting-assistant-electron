@@ -34,25 +34,31 @@ export default function FloatingPrompter() {
     };
   }, []);
 
-  const handleWebSocketMessage = useCallback((data) => {
-    switch (data.type) {
-      case 'status':
+  const handleWebSocketMessage = useCallback(
+    (data) => {
+      if (data.type === 'status') {
         setIsListening(data.is_listening);
-        if (data.status === 'processing') {
-          setCurrentResponse('');
-        }
-        break;
-      case 'response':
-        handleAssistantResponse(data.data);
-        break;
-      case 'error':
-        setError(data.error.message);
-        setShowAlert(true);
-        break;
-      default:
-        console.warn('Unknown message type:', data.type);
-    }
-  }, []);
+      }
+
+      if (isPaused) {
+        // Do not process incoming messages or update responses when paused
+        return;
+      }
+
+      switch (data.type) {
+        case 'response':
+          handleAssistantResponse(data.data);
+          break;
+        case 'error':
+          setError(data.error.message);
+          setShowAlert(true);
+          break;
+        default:
+          console.warn('Unknown message type:', data.type);
+      }
+    },
+    [isPaused, handleAssistantResponse]
+  );
 
   const handleAssistantResponse = useCallback((responseData) => {
     if (responseData.type === 'response.audio_transcript.delta') {
@@ -175,7 +181,8 @@ export default function FloatingPrompter() {
         {backendReady && !isMinimized && (
           <div style={{ padding: '16px' }}>
             <button 
-              onClick={toggleListening} 
+              onClick={toggleListening}
+              disabled={isPaused}  // Disable when paused
               style={{
                 width: '100%',
                 padding: '12px',
@@ -183,7 +190,8 @@ export default function FloatingPrompter() {
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer',
+                cursor: isPaused ? 'not-allowed' : 'pointer',  // Update cursor style
+                opacity: isPaused ? 0.5 : 1,  // Dim the button when disabled
                 fontSize: '1rem',
                 marginBottom: '16px',
                 WebkitAppRegion: 'no-drag',
