@@ -9,6 +9,7 @@ class WebSocketManager:
         self.clients = set()
         self.server = None
         self.logger = setup_logging('websocket_manager')
+        self.is_paused = False
 
     async def start(self):
         self.server = await websockets.serve(self.handler, 'localhost', 8000)
@@ -43,12 +44,21 @@ class WebSocketManager:
             action = data['action']
             if action == 'start_listening':
                 await self.assistant.start_listening()
-            elif action == 'shutdown':
+            elif action == 'pause_listening':
+                self.is_paused = True
+                self.logger.info("Listening paused")
+            elif action == 'resume_listening':
+                self.is_paused = False
+                self.logger.info("Listening resumed")
                 self.assistant.stop()
                 await self.stop()
             else:
                 self.logger.warning(f"Unknown action received: {action}")
-        else:
+        elif data['type'] == 'togglePause':
+            if self.is_paused:
+                await self.process_message({'type': 'control', 'action': 'resume_listening'}, websocket)
+            else:
+                await self.process_message({'type': 'control', 'action': 'pause_listening'}, websocket)
             self.logger.warning(f"Unknown message type received: {data['type']}")
 
     async def broadcast_status(self, status, is_listening):
