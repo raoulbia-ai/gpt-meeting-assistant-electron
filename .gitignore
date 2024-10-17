@@ -141,3 +141,4 @@ yarn-error.log*
 backend/logs
 .aider*
 dist/
+docs/
