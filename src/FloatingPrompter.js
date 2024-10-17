@@ -50,7 +50,6 @@ export default function FloatingPrompter() {
             setLastStatus({ is_listening: data.is_listening, is_paused: data.is_paused });
             setIsListening(data.is_listening);
             setIsPaused(data.is_paused);
-            setIsPaused(data.is_paused);
           }
           break;
           
@@ -215,7 +214,7 @@ export default function FloatingPrompter() {
           <div style={{ padding: '16px' }}>
           <button 
             onClick={toggleListening}
-            disabled={isPaused}  // Disable when paused
+            disabled={false}  // Keep it enabled unless there are other reasons to disable it
             style={{
               width: '100%',
               padding: '12px',
