@@ -120,7 +120,6 @@ export default function FloatingPrompter() {
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         fontFamily: 'Arial, sans-serif',
-        WebkitAppRegion: 'drag',
       }}>
         <div style={{
           display: 'flex',
