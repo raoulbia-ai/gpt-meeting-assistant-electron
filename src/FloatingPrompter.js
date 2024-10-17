@@ -5,6 +5,7 @@ export default function FloatingPrompter() {
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [currentResponse, setCurrentResponse] = useState('');
+  const [isPaused, setIsPaused] = useState(false);
   const [displayedResponse, setDisplayedResponse] = useState('');
   const [error, setError] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -122,6 +123,27 @@ export default function FloatingPrompter() {
           <div>
             <button onClick={toggleMinimize} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1rem', marginRight: '8px', WebkitAppRegion: 'no-drag' }}>
               {isMinimized ? '🗖' : '🗕'}
+            </button>
+            <button
+              onClick={() => {
+                if (isPaused) {
+                  sendWebSocketMessage('control', { action: 'resume_listening' });
+                } else {
+                  sendWebSocketMessage('control', { action: 'pause_listening' });
+                }
+                setIsPaused(!isPaused);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                marginRight: '8px',
+                WebkitAppRegion: 'no-drag',
+              }}
+            >
+              {isPaused ? 'Resume' : 'Pause'}
             </button>
             <button onClick={() => window.close()} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1rem', WebkitAppRegion: 'no-drag' }}>
               ✖

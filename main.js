@@ -28,23 +28,6 @@ function createWindow () {
   // Hide the window from the taskbar
   win.setSkipTaskbar(true)
 
-  // Add a Pause/Resume button
-  const pauseResumeButton = document.createElement('button')
-  pauseResumeButton.textContent = 'Pause'
-  pauseResumeButton.style.position = 'absolute'
-  pauseResumeButton.style.top = '10px'
-  pauseResumeButton.style.right = '10px'
-  document.body.appendChild(pauseResumeButton)
-
-  pauseResumeButton.addEventListener('click', () => {
-    if (pauseResumeButton.textContent === 'Pause') {
-      pauseResumeButton.textContent = 'Resume'
-      win.webContents.send('togglePause', { action: 'pause_listening' })
-    } else {
-      pauseResumeButton.textContent = 'Pause'
-      win.webContents.send('togglePause', { action: 'resume_listening' })
-    }
-  })
   win.once('ready-to-show', () => {
     win.show()
   })
