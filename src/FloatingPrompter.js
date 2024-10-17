@@ -35,40 +35,56 @@ export default function FloatingPrompter() {
     };
   }, []);
 
+  const [lastStatus, setLastStatus] = useState({ is_listening: false, is_paused: false });
+
   const handleWebSocketMessage = useCallback(
     (data) => {
-      if (data.type === 'status') {
-        setIsListening(data.is_listening);
-        setIsPaused(data.is_paused);
-      }
-
-
       switch (data.type) {
-        case 'new_response':
-          // Clear previous responses when a new response starts
+        case 'status':
+          // Compare new status with last known status, but always allow state transition to 'idle'
+          if (
+            lastStatus.is_listening !== data.is_listening ||
+            lastStatus.is_paused !== data.is_paused ||
+            data.status === 'idle'  // Ensure we handle idle state properly
+          ) {
+            setLastStatus({ is_listening: data.is_listening, is_paused: data.is_paused });
+            setIsListening(data.is_listening);
+            setIsPaused(data.is_paused);
+          }
+          break;
+          
+          case 'transcript':
+            // Handle transcript message
+            setCurrentResponse(prev => prev + (data.transcript || ''));
+            break;
+          case 'new_response':
           setDisplayedResponse('');
           setCurrentResponse('');
           break;
+          
         case 'response':
           handleAssistantResponse(data.data);
           break;
+          
         case 'api_call_count':
           setApiCallCount(data.count);
           break;
+          
         case 'error':
           setError(data.error.message);
           setShowAlert(true);
           break;
+          
         default:
           console.warn('Unknown message type:', data.type);
       }
     },
-    [isPaused, handleAssistantResponse]
+    [lastStatus, handleAssistantResponse]
   );
+  
 
   const handleAssistantResponse = useCallback((responseData) => {
     if (responseData.type === 'response.audio_transcript.delta') {
-      // Clear previous responses when a new response starts
       if (!currentResponse && displayedResponse) {
         setDisplayedResponse('');
       }
@@ -76,8 +92,26 @@ export default function FloatingPrompter() {
     } else if (responseData.type === 'response.complete') {
       setDisplayedResponse(currentResponse);
       setCurrentResponse('');
+  
+      // Log before sending pause command
+      console.log('Complete response received. Pausing listening...');
+      // Automatically pause after the response completes
+      sendWebSocketMessage('control', { action: 'pause_listening' });
+      setIsPaused(true);
     }
   }, [currentResponse]);
+  
+  
+    
+    const toggleListening = () => {
+      if (isListening) {
+        sendWebSocketMessage('control', { action: 'stop_listening' });
+      } else {
+        sendWebSocketMessage('control', { action: 'start_listening' });
+      }
+      setIsListening(!isListening);
+    };
+  
 
   const sendWebSocketMessage = useCallback((type, payload) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -88,14 +122,7 @@ export default function FloatingPrompter() {
     }
   }, []);
 
-  const toggleListening = () => {
-    if (isListening) {
-      sendWebSocketMessage('control', { action: 'stop_listening' });
-    } else {
-      sendWebSocketMessage('control', { action: 'start_listening' });
-    }
-    setIsListening(!isListening);
-  };
+
 
   const toggleMinimize = () => setIsMinimized(!isMinimized);
 
@@ -133,7 +160,7 @@ export default function FloatingPrompter() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span className="drag-handle" style={{ cursor: 'move', marginRight: '8px', WebkitAppRegion: 'drag' }}>☰</span>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>Interview Companion</h2>
+
           </div>
           <div>
             <button onClick={toggleMinimize} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1rem', marginRight: '8px', WebkitAppRegion: 'no-drag' }}>
@@ -143,10 +170,10 @@ export default function FloatingPrompter() {
               onClick={() => {
                 if (isPaused) {
                   sendWebSocketMessage('control', { action: 'resume_listening' });
-                  setIsPaused(false);
+                  setIsPaused(false);  // Set to not paused
                 } else {
                   sendWebSocketMessage('control', { action: 'pause_listening' });
-                  setIsPaused(true);
+                  setIsPaused(true);  // Set to paused
                 }
               }}
               style={{
@@ -161,6 +188,7 @@ export default function FloatingPrompter() {
             >
               {isPaused ? 'Resume' : 'Pause'}
             </button>
+
             <button onClick={() => window.close()} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1rem', WebkitAppRegion: 'no-drag' }}>
               ✖
             </button>
@@ -190,25 +218,26 @@ export default function FloatingPrompter() {
 
         {backendReady && !isMinimized && (
           <div style={{ padding: '16px' }}>
-            <button 
-              onClick={toggleListening}
-              disabled={isPaused}  // Disable when paused
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: isListening ? `rgba(245, 101, 101, ${opacity})` : `rgba(66, 153, 225, ${opacity})`,
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isPaused ? 'not-allowed' : 'pointer',  // Update cursor style
-                opacity: isPaused ? 0.5 : 1,  // Dim the button when disabled
-                fontSize: '1rem',
-                marginBottom: '16px',
-                WebkitAppRegion: 'no-drag',
-              }}
-            >
-              {isListening ? 'Stop Listening' : 'Start Listening'}
-            </button>
+          <button 
+            onClick={toggleListening}
+            disabled={isPaused}  // Disable the button when the system is paused
+            style={{
+              width: '100%',
+              padding: '12px',
+              backgroundColor: isListening ? `rgba(245, 101, 101, ${opacity})` : `rgba(66, 153, 225, ${opacity})`,
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isPaused ? 'not-allowed' : 'pointer',  // Prevent interaction when paused
+              opacity: isPaused ? 0.5 : 1,  // Dim the button when it's disabled
+              fontSize: '1rem',
+              marginBottom: '16px',
+              WebkitAppRegion: 'no-drag',
+            }}
+          >
+            {isListening ? 'Stop Listening' : 'Start Listening'}
+          </button>
+
             
             <div style={{ 
               height: '200px',

@@ -8,7 +8,7 @@ function createWindow () {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
+      enableRemoteModule: false
     },
     transparent: true, // Set to true for transparency
     frame: false,      // Remove window frame

@@ -47,6 +47,7 @@ class WebSocketManager:
             elif action == 'pause_listening':
                 await self.assistant.pause()  # Call the assistant's pause method
                 self.logger.info("Listening paused")
+                await self.broadcast_status("paused", False)  # Broadcast the pause status
             elif action == 'resume_listening':
                 await self.assistant.resume()  # Call the assistant's resume method
                 self.logger.info("Listening resumed")
@@ -63,7 +64,8 @@ class WebSocketManager:
         message = json.dumps({
             'type': 'status',
             'status': status,
-            'is_listening': is_listening
+            'is_listening': is_listening,
+            'is_paused': self.assistant.is_paused
         })
         await self.broadcast(message)
 

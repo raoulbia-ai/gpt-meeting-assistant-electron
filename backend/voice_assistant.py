@@ -201,6 +201,7 @@ class VoiceAssistant:
                     self.logger.debug("waiting_for_response set to False")
                     await self.websocket_manager.broadcast_status("idle", False)
                     self.response_processor.clear_transcript()
+                    await self.pause()  # Add this line to automatically pause
                 elif response['type'] == 'error':
                     error_message = response.get('error', {}).get('message', 'Unknown error')
                     error_code = response.get('error', {}).get('code', 'Unknown code')
