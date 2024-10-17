@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 
 export default function FloatingPrompter() {
   const [isConnected, setIsConnected] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [currentResponse, setCurrentResponse] = useState('');
   const [displayedResponse, setDisplayedResponse] = useState('');
@@ -37,6 +38,7 @@ export default function FloatingPrompter() {
     (data) => {
       if (data.type === 'status') {
         setIsListening(data.is_listening);
+        setIsPaused(data.is_paused);
       }
 
 
@@ -127,7 +129,13 @@ export default function FloatingPrompter() {
             </button>
             <button
               onClick={() => {
-                sendWebSocketMessage('control', { action: isListening ? 'pause_listening' : 'resume_listening' });
+                if (isPaused) {
+                  sendWebSocketMessage('control', { action: 'resume_listening' });
+                  setIsPaused(false);
+                } else {
+                  sendWebSocketMessage('control', { action: 'pause_listening' });
+                  setIsPaused(true);
+                }
               }}
               style={{
                 background: 'none',

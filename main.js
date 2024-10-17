@@ -10,17 +10,21 @@ function createWindow () {
       contextIsolation: false,
       enableRemoteModule: true
     },
-    transparent: true,
-    frame: false,
-    backgroundColor: '#00000000',
-    hasShadow: false,
+    transparent: false, // Change to false
+    frame: true,        // Change to true
+    backgroundColor: '#FFFFFF', // Set a visible background color
+    hasShadow: true,
     visualEffectState: 'active'
   })
 
   win.loadFile('index.html')
 
-  // Uncomment the following line to open DevTools by default
+  // Open DevTools by default
   win.webContents.openDevTools()
+  
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error(`Failed to load: ${errorDescription} (${errorCode})`);
+  });
 
   // Make sure the window is always on top
   win.setAlwaysOnTop(true, 'floating')
