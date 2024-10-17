@@ -53,6 +53,12 @@ class WebSocketManager:
             else:
                 self.logger.warning(f"Unknown action received: {action}")
 
+    async def broadcast_new_response(self):
+        message = json.dumps({
+            'type': 'new_response'
+        })
+        await self.broadcast(message)
+
     async def broadcast_status(self, status, is_listening):
         message = json.dumps({
             'type': 'status',

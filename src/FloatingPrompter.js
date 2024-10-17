@@ -44,6 +44,11 @@ export default function FloatingPrompter() {
 
 
       switch (data.type) {
+        case 'new_response':
+          // Clear previous responses when a new response starts
+          setDisplayedResponse('');
+          setCurrentResponse('');
+          break;
         case 'response':
           handleAssistantResponse(data.data);
           break;

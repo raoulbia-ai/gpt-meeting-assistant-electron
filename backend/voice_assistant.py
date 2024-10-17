@@ -130,7 +130,8 @@ class VoiceAssistant:
             return
         
         try:
-            self.waiting_for_response = True
+            # Notify frontend that a new response is starting
+            await self.websocket_manager.broadcast_new_response()
             api_call_made = await self.send_audio_to_api(self.audio_buffer)
             if api_call_made:
                 self.audio_buffer = b""
