@@ -298,7 +298,7 @@ if __name__ == "__main__":
     assistant.websocket_manager = websocket_manager
     asyncio.run(assistant.run())
 class VoiceAssistant:
-    def __init__(self, config, audio_capture, openai_client, ...):
+    def __init__(self, config, audio_capture, openai_client, websocket_manager, response_processor):
         # Existing initialization code...
         self.is_paused = False  # Add this line
         # ...
