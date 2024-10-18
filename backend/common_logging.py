@@ -4,13 +4,17 @@ from logging.handlers import RotatingFileHandler
 
 def setup_logging(name, debug_to_console=False):
     logger = logging.getLogger(name)
+    
+    if logger.hasHandlers():  # Check if handlers are already set up
+        return logger  # If handlers exist, return the logger
+    
     logger.setLevel(logging.DEBUG)
     
     # Ensure the logs directory exists
     os.makedirs('backend/logs', exist_ok=True)
     
     # File handler
-    file_handler = RotatingFileHandler(f'backend/logs/{name}.log', maxBytes=10000000, backupCount=5)
+    file_handler = RotatingFileHandler(f'logs/{name}.log', maxBytes=10000000, backupCount=5)
     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
@@ -24,3 +28,4 @@ def setup_logging(name, debug_to_console=False):
         logger.addHandler(console_handler)
     
     return logger
+

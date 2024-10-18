@@ -6,9 +6,10 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
       enableRemoteModule: false
+      // offscreen: true, // Enables offscreen rendering
     },
     transparent: true, // Set to true for transparency
     frame: false,      // Remove window frame

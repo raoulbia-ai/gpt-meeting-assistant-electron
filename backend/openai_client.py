@@ -14,7 +14,8 @@ class OpenAIClient:
         self.api_url = self.config.api_url
         self.websocket = None
         self.logger = logging.getLogger('openai_client')
-        self.setup_logging(debug_to_console)
+        # self.setup_logging(debug_to_console)
+        self.logger = setup_logging('openai_client')
 
     # def setup_logging(self, debug_to_console=False):
     #     self.logger.setLevel(logging.CRITICAL)
