@@ -10,7 +10,7 @@ export default function FloatingPrompter() {
   const [displayedResponse, setDisplayedResponse] = useState('');
   const [error, setError] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
-  const [opacity, setOpacity] = useState(0.8);
+  const [opacity, setOpacity] = useState(0.4);
   const [showAlert, setShowAlert] = useState(false);
   const [backendReady, setBackendReady] = useState(false);
 
@@ -261,7 +261,7 @@ export default function FloatingPrompter() {
               </pre>
             </div>
             
-            <div style={{ padding: '16px', color: 'white' }}>
+            <div style={{ padding: '2px', color: 'white' }}>
               <p>API Calls Made: {apiCallCount}</p>
             </div>
             <div>

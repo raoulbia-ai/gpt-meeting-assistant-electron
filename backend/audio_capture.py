@@ -2,7 +2,8 @@ import pyaudio
 import webrtcvad
 import numpy as np
 import logging
-from logging.handlers import RotatingFileHandler
+# from logging.handlers import RotatingFileHandler
+from common_logging import setup_logging
 import os
 import asyncio
 
@@ -27,25 +28,25 @@ class AudioCapture:
         self.logger.info("AudioCapture initialized")
         self.logger.info(f"Speech frames threshold set to {self.speech_frames_threshold} frames")
 
-    def setup_logging(self, debug_to_console=False):
-        self.logger.setLevel(logging.CRITICAL)
+    # def setup_logging(self, debug_to_console=False):
+    #     self.logger.setLevel(logging.CRITICAL)
         
-        # Ensure the logs directory exists
-        os.makedirs('logs', exist_ok=True)
+    #     # Ensure the logs directory exists
+    #     os.makedirs('logs', exist_ok=True)
         
-        # File handler
-        file_handler = RotatingFileHandler('logs/audio_capture.log', maxBytes=10000000, backupCount=5)
-        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(file_formatter)
-        self.logger.addHandler(file_handler)
+    #     # File handler
+    #     file_handler = RotatingFileHandler('logs/audio_capture.log', maxBytes=10000000, backupCount=5)
+    #     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    #     file_handler.setFormatter(file_formatter)
+    #     self.logger.addHandler(file_handler)
 
-        if debug_to_console:
-            # Console handler for debug mode
-            console_handler = logging.StreamHandler()
-            console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-            console_handler.setFormatter(console_formatter)
-            console_handler.setLevel(logging.DEBUG)
-            self.logger.addHandler(console_handler)
+    #     if debug_to_console:
+    #         # Console handler for debug mode
+    #         console_handler = logging.StreamHandler()
+    #         console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    #         console_handler.setFormatter(console_formatter)
+    #         console_handler.setLevel(logging.DEBUG)
+    #         self.logger.addHandler(console_handler)
 
     def select_audio_device(self):
         self.logger.info("Selecting audio device")

@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 
 def setup_logging(name, debug_to_console=False):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.CRITICAL)
+    logger.setLevel(logging.DEBUG)
     
     # Ensure the logs directory exists
     os.makedirs('backend/logs', exist_ok=True)

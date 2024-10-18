@@ -20,7 +20,7 @@ function createWindow () {
   win.loadFile('index.html')
 
   // Open DevTools by default
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
   
   win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     console.error(`Failed to load: ${errorDescription} (${errorCode})`);
