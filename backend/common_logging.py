@@ -7,10 +7,10 @@ def setup_logging(name, debug_to_console=False):
     logger.setLevel(logging.CRITICAL)
     
     # Ensure the logs directory exists
-    os.makedirs('logs', exist_ok=True)
+    os.makedirs('backend/logs', exist_ok=True)
     
     # File handler
-    file_handler = RotatingFileHandler(f'logs/{name}.log', maxBytes=10000000, backupCount=5)
+    file_handler = RotatingFileHandler(f'backend/logs/{name}.log', maxBytes=10000000, backupCount=5)
     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
