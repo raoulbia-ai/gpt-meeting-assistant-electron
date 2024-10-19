@@ -170,7 +170,8 @@ class AudioCapture:
         else:
             self.logger.info("Audio stream is not running")
 
-    def __del__(self):
+    def reset_vad(self):
+        self.speech_frames_count = 0
         self.stop_stream()
         self.p.terminate()
         self.logger.info("AudioCapture instance destroyed")

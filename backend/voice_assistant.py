@@ -48,6 +48,11 @@ class VoiceAssistant:
         if not self.is_paused:
             return  # Already running
         self.is_paused = False  # Reset the paused flag
+        self.audio_buffer = b''  # Clear the audio buffer
+        self.audio_capture.reset_vad()  # Reset VAD state
+        self.last_audio_time = time.time()  # Reset the last audio time
+        self.waiting_for_response = False  # Ensure not waiting for a response
+        self.cooldown_active = False  # Reset cooldown if necessary
         self.audio_capture.start_stream()  # Start the audio stream
         await self.websocket_manager.broadcast_status("listening", True)  # Broadcast listening status
         self.logger.info("Assistant resumed")
@@ -138,7 +143,7 @@ class VoiceAssistant:
             return
         
         try:
-            # Notify frontend that a new response is starting
+            self.waiting_for_response = True  # Set before sending to prevent new API calls
             await self.websocket_manager.broadcast_new_response()
             api_call_made = await self.send_audio_to_api(self.audio_buffer)
             if api_call_made:
@@ -152,9 +157,6 @@ class VoiceAssistant:
                 self.buffer_ready.clear()
         except Exception as e:
             self.logger.error(f"Error in send_buffer_to_api: {str(e)}", exc_info=True)
-        finally:
-            self.waiting_for_response = False
-            self.logger.debug("waiting_for_response set to False after send_buffer_to_api")
 
     async def send_audio_to_api(self, buffer):
         if self.max_api_calls != -1 and self.api_calls_made >= self.max_api_calls:

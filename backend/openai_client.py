@@ -83,18 +83,10 @@ class OpenAIClient:
             return
 
         try:
-            encoded_audio = self.encode_audio(audio_buffer)
-            encoded_size = len(encoded_audio)
-            self.logger.debug(f"Encoded audio size: {encoded_size} characters")
-
-            if encoded_size == 0:
-                self.logger.error("Encoding resulted in empty buffer. Skipping API call.")
-                return
-
             message = {
                 "event_id": self.generate_event_id(),
                 "type": "input_audio_buffer.append",
-                "audio": encoded_audio
+                "audio": audio_buffer.decode('latin1')  # Convert bytes to string
             }
             await self.websocket.send(json.dumps(message))
             self.logger.debug(f"Sent audio message of size: {encoded_size} characters")
