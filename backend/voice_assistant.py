@@ -1,6 +1,7 @@
 import asyncio
 import time
 import websockets
+import pyaudio
 from audio_capture import AudioCapture
 from openai_client import OpenAIClient
 from websocket_manager import WebSocketManager
