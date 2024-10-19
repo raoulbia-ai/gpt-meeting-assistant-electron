@@ -8,8 +8,8 @@ class Config:
         self.min_buffer_size = 32000
         self.max_buffer_wait_time = 5 
         self.rate = 48000 #32000
-        self.frame_duration_ms = 30
-        self.chunk = int(self.rate * self.frame_duration_ms / 1000)
+        self.frame_duration_ms = 20  # Use 20 ms frames for VAD
+        self.chunk = int(self.rate * self.frame_duration_ms / 1000) * self.channels * pyaudio.get_sample_size(pyaudio.paInt16)
         self.channels = 1
 
         # Removed websocket_host and websocket_port as they are hardcoded in websocket_manager.py

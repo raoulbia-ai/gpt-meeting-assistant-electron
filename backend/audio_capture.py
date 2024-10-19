@@ -18,7 +18,7 @@ class AudioCapture:
         self.frame_duration_ms = config.frame_duration_ms
         self.p = pyaudio.PyAudio()
         self.stream = None
-        self.vad = webrtcvad.Vad(3)  # Aggressiveness level
+        self.vad = webrtcvad.Vad(2)  # Aggressiveness level from 0 to 3
         self.device_index = None
         self.logger = logging.getLogger('audio_capture')
 
@@ -81,12 +81,6 @@ class AudioCapture:
             self.select_audio_device()
         try:
             if self.stream is None:
-                # Calculate bytes per sample
-                bytes_per_sample = pyaudio.get_sample_size(self.format)
-                
-                # Calculate the number of frames based on chunk size and bytes per sample
-                frames_per_buffer = self.chunk // (bytes_per_sample * self.channels)
-                
                 self.stream = self.p.open(format=self.format,
                                           channels=self.channels,
                                           rate=self.rate,
@@ -108,16 +102,20 @@ class AudioCapture:
             raise RuntimeError("Audio stream is not initialized")
 
         loop = asyncio.get_event_loop()
-        audio_data = await loop.run_in_executor(None, self.stream.read, self.chunk // (pyaudio.get_sample_size(self.format) * self.channels))
+        num_frames = self.chunk // pyaudio.get_sample_size(self.format)
+        audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, False)
 
-        # Ensure the audio data is exactly 1920 bytes
-        if len(audio_data) != self.chunk:
-            self.logger.warning(f"Audio data size mismatch. Expected {self.chunk}, got {len(audio_data)}")
-            audio_data = audio_data[:self.chunk]  # Truncate if too long
-            audio_data = audio_data.ljust(self.chunk, b'\0')  # Pad if too short
-
-        # Log the audio levels
+        # Convert audio data to numpy array
         audio_array = np.frombuffer(audio_data, dtype=np.int16)
+
+        # Check if audio is stereo (more than one channel)
+        if self.channels > 1 or (audio_array.ndim > 1 and audio_array.shape[1] > 1):
+            # Downmix stereo to mono by averaging channels
+            audio_array = audio_array.mean(axis=-1).astype(np.int16)
+            self.logger.debug("Audio data downmixed to mono")
+
+        # Convert back to bytes
+        audio_data = audio_array.tobytes()
         rms = np.sqrt(np.mean(np.square(audio_array.astype(np.float32))))
         self.logger.debug(f"Audio RMS: {rms}")
 
