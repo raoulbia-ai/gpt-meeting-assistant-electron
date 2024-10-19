@@ -1,4 +1,5 @@
 import asyncio
+from common_logging import setup_logging
 
 class VoiceAssistant:
     def __init__(self, audio_capture):
