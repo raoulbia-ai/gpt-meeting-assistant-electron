@@ -142,10 +142,25 @@ class VoiceAssistant:
             self.buffer_ready.clear()
             return
         
+        import io
+        from pydub import AudioSegment
+
         try:
             self.waiting_for_response = True  # Set before sending to prevent new API calls
             await self.websocket_manager.broadcast_new_response()
-            api_call_made = await self.send_audio_to_api(self.audio_buffer)
+
+            # Resample audio to 24000 Hz
+            audio_segment = AudioSegment(
+                data=self.audio_buffer,
+                sample_width=pyaudio.get_sample_size(self.audio_capture.format),
+                frame_rate=self.audio_capture.rate,
+                channels=self.audio_capture.channels
+            )
+            audio_segment = audio_segment.set_frame_rate(24000)
+            audio_segment = audio_segment.set_channels(1)
+            resampled_audio_buffer = audio_segment.raw_data
+
+            api_call_made = await self.send_audio_to_api(resampled_audio_buffer)
             if api_call_made:
                 self.audio_buffer = b""
                 self.buffer_ready.clear()

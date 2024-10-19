@@ -17,7 +17,9 @@ class AudioCapture:
         self.format = pyaudio.paInt16
         self.channels = config.channels
         self.rate = config.rate
-        self.frame_duration_ms = config.frame_duration_ms
+        self.frame_duration_ms = 30  # Must be 10, 20, or 30
+        self.bytes_per_sample = pyaudio.get_sample_size(self.format)
+        self.chunk = int(self.rate * self.frame_duration_ms / 1000)  # Frames per buffer
         self.p = pyaudio.PyAudio()
         self.stream = None
         self.vad = webrtcvad.Vad(1)  # Aggressiveness level from 0 to 3
@@ -105,9 +107,9 @@ class AudioCapture:
             raise RuntimeError("Audio stream is not initialized")
 
         loop = asyncio.get_event_loop()
-        num_frames = self.chunk  # Use self.chunk directly as the number of frames
+        num_frames = self.chunk
         try:
-            audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, False)
+            audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, exception_on_overflow=False)
         except Exception as e:
             self.logger.error(f"Error reading audio data: {e}")
             return b''  # Return empty bytes to avoid crashing
@@ -142,9 +144,9 @@ class AudioCapture:
             self.logger.debug(f"Processing audio segment of length: {len(audio_segment)}")
             self.logger.debug(f"Audio segment sample rate: {self.rate}, channels: {self.channels}")
 
-            # Use self.frame_duration_ms instead of hardcoded 30 ms
-            samples_per_frame = self.chunk
-            expected_frame_length = samples_per_frame * pyaudio.get_sample_size(self.format)
+            frame_duration_ms = self.frame_duration_ms  # 10, 20, or 30 ms
+            samples_per_frame = int(self.rate * frame_duration_ms / 1000)
+            expected_frame_length = samples_per_frame * self.bytes_per_sample
 
             # Split the audio segment into frames of the correct size
             frames = [audio_segment[i:i+expected_frame_length] for i in range(0, len(audio_segment), expected_frame_length)]
