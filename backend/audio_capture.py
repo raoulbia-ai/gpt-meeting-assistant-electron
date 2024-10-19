@@ -197,3 +197,5 @@ if __name__ == "__main__":
     finally:
         audio_capture.stop_stream()
         print("Audio capture stopped.")
+def reset_vad(self):
+    self.speech_frames_count = 0
