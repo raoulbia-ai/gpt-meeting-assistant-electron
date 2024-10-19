@@ -86,7 +86,7 @@ class AudioCapture:
                                           rate=self.rate,
                                           input=True,
                                           input_device_index=self.device_index,
-                                          frames_per_buffer=frames_per_buffer)
+                                          frames_per_buffer=self.chunk)
                 self.logger.info(f"Audio stream started for device {self.device_index} with rate {self.rate} and chunk size {self.chunk}")
             else:
                 self.logger.info("Audio stream already started")
