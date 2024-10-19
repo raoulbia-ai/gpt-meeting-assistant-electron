@@ -32,6 +32,8 @@ class VoiceAssistant:
         self.speech_frames_count = 0
         self.is_sending_audio = False
         self.is_processing = False
+        self.audio_buffer = b''  # Clear the audio buffer
+        self.audio_capture.reset_vad()  # Reset VAD state if applicable
 
     async def process_audio(self):
         while not self.stop_event.is_set():

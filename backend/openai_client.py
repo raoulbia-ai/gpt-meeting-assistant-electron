@@ -66,6 +66,7 @@ class OpenAIClient:
             }
         }
         await self.websocket.send(json.dumps(session_update))
+        self.logger.debug(f"Session update sent: {json.dumps(session_update)}")
         response = await self.websocket.recv()
         self.logger.debug(f"Session initialization response: {response}")
 
@@ -90,7 +91,6 @@ class OpenAIClient:
                 self.logger.error("Encoding resulted in empty buffer. Skipping API call.")
                 return
 
-            audio_sent = False  # Initialize the flag
             message = {
                 "event_id": self.generate_event_id(),
                 "type": "input_audio_buffer.append",
@@ -99,16 +99,13 @@ class OpenAIClient:
             await self.websocket.send(json.dumps(message))
             self.logger.debug(f"Sent audio message of size: {encoded_size} characters")
 
-            # Only send commit message if audio was appended
-            if audio_sent:
-                commit_message = {
-                    "event_id": self.generate_event_id(),
-                    "type": "input_audio_buffer.commit"
-                }
-                await self.websocket.send(json.dumps(commit_message))
-                self.logger.debug("Sent commit message")
-            else:
-                self.logger.info("No audio appended, not sending commit message.")
+            # Send commit message immediately after appending audio
+            commit_message = {
+                "event_id": self.generate_event_id(),
+                "type": "input_audio_buffer.commit"
+            }
+            await self.websocket.send(json.dumps(commit_message))
+            self.logger.debug("Sent commit message")
 
         except Exception as e:
             self.logger.error(f"Error in send_audio: {str(e)}")
