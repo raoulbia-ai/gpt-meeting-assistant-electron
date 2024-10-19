@@ -1,4 +1,5 @@
 from pydub import AudioSegment
+import functools
 import io
 import pyaudio
 import webrtcvad
@@ -109,7 +110,9 @@ class AudioCapture:
         loop = asyncio.get_event_loop()
         num_frames = self.chunk
         try:
-            audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, exception_on_overflow=False)
+            # Use functools.partial to create a callable with keyword arguments
+            read_func = functools.partial(self.stream.read, num_frames, exception_on_overflow=False)
+            audio_data = await loop.run_in_executor(None, read_func)
         except Exception as e:
             self.logger.error(f"Error reading audio data: {e}")
             return b''  # Return empty bytes to avoid crashing
