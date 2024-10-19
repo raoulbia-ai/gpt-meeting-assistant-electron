@@ -125,17 +125,13 @@ class AudioCapture:
             channels=self.channels
         )
         
-        # Resample to 24000 Hz
-        if self.rate != 24000:
-            audio_segment = audio_segment.set_frame_rate(24000)
-        
-        # Ensure mono
+        # Ensure mono if necessary
         if self.channels > 1:
             audio_segment = audio_segment.set_channels(1)
         
         # Get raw audio data
         audio_data = audio_segment.raw_data
-        self.rate = 24000  # Update rate
+        # self.rate remains at 48000 Hz
         
         rms = audio_segment.rms
         self.logger.debug(f"Audio RMS: {rms}")

@@ -150,7 +150,7 @@ class VoiceAssistant:
             self.waiting_for_response = True  # Set before sending to prevent new API calls
             await self.websocket_manager.broadcast_new_response()
 
-            # Resample audio to 24000 Hz
+            # Resample audio to 24000 Hz before sending to the API
             audio_segment = AudioSegment(
                 data=self.audio_buffer,
                 sample_width=pyaudio.get_sample_size(self.audio_capture.format),
