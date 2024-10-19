@@ -23,7 +23,8 @@ class AudioCapture:
         self.logger = logging.getLogger('audio_capture')
 
         # Speech detection parameters
-        self.speech_frames_threshold = int(0.3 * self.rate / self.chunk)  # <<<<<<<<<<<<<<<<<<<<
+        frames_per_second = 1000 / self.frame_duration_ms
+        self.speech_frames_threshold = int(0.3 * frames_per_second)  # 0.3 seconds worth of frames
         self.speech_frames_count = 0
 
         # self.setup_logging(debug_to_console)
@@ -130,17 +131,19 @@ class AudioCapture:
             self.logger.debug(f"Processing audio segment of length: {len(audio_segment)}")
             self.logger.debug(f"Audio segment sample rate: {self.rate}, channels: {self.channels}")
 
-            # WebRTC VAD only accepts 10, 20, or 30 ms audio frames
-            frame_duration_ms = 30
-            samples_per_frame = int(self.rate * frame_duration_ms / 1000)
-            
-            # Split the audio segment into 30ms frames
+            # Use self.frame_duration_ms instead of hardcoded 30 ms
+            samples_per_frame = int(self.rate * self.frame_duration_ms / 1000)
+
+            # Split the audio segment into frames of the correct size
             frames = [audio_segment[i:i+samples_per_frame*2] for i in range(0, len(audio_segment), samples_per_frame*2)]
-            
+
             is_speech_frame = False
             for frame in frames:
-                if len(frame) == samples_per_frame * 2:  # Ensure the frame is complete
+                expected_frame_length = samples_per_frame * 2
+                self.logger.debug(f"Processing frame of length: {len(frame)} (expected: {expected_frame_length})")
+                if len(frame) == expected_frame_length:
                     is_speech_frame = self.vad.is_speech(frame, self.rate)
+                    self.logger.debug(f"VAD result for frame: {is_speech_frame}")
                     if is_speech_frame:
                         break  # If any frame is speech, consider the whole segment as speech
 
