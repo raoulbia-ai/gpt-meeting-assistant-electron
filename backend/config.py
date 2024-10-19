@@ -8,10 +8,11 @@ class Config:
         self.cooldown_duration = 5
         self.min_buffer_size = 32000
         self.max_buffer_wait_time = 5 
-        self.rate = 16000  # Set sample rate to 16000 Hz
+        self.rate = 48000  # Set sample rate to 16000 Hz
         self.frame_duration_ms = 30  # Use 20 ms frames for VAD
         self.channels = 1
-        self.chunk = int(self.rate * self.frame_duration_ms / 1000) * self.channels * pyaudio.get_sample_size(pyaudio.paInt16)
+        self.sample_width = pyaudio.get_sample_size(self.format)
+        self.chunk = int(self.rate * self.frame_duration_ms / 1000)
 
         # Removed websocket_host and websocket_port as they are hardcoded in websocket_manager.py
         self.api_key = os.getenv("OPENAI_API_KEY")
