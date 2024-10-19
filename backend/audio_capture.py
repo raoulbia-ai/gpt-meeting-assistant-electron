@@ -18,13 +18,13 @@ class AudioCapture:
         self.frame_duration_ms = config.frame_duration_ms
         self.p = pyaudio.PyAudio()
         self.stream = None
-        self.vad = webrtcvad.Vad(0)  # Aggressiveness level from 0 to 3
+        self.vad = webrtcvad.Vad(1)  # Aggressiveness level from 0 to 3
         self.device_index = None
         self.logger = logging.getLogger('audio_capture')
 
         # Speech detection parameters
         frames_per_second = 1000 / self.frame_duration_ms
-        self.speech_frames_threshold = int(0.7 * frames_per_second)  # 0.3 seconds worth of frames
+        self.speech_frames_threshold = int(0.5 * frames_per_second)  # 0.3 seconds worth of frames
         self.speech_frames_count = 0
 
         # self.setup_logging(debug_to_console)
