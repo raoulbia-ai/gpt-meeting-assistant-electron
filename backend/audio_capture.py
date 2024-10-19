@@ -185,7 +185,7 @@ class AudioCapture:
     def reset_vad(self):
         self.speech_frames_count = 0
         self.stop_stream()
-        self.p.terminate()
+        # self.p.terminate()
         self.logger.info("AudioCapture instance destroyed")
 
 if __name__ == "__main__":
