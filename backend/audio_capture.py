@@ -111,16 +111,32 @@ class AudioCapture:
 
     async def is_speech(self, audio_segment):
         try:
+            self.logger.debug(f"Processing audio segment of length: {len(audio_segment)}")
+            self.logger.debug(f"Audio segment sample rate: {self.rate}, channels: {self.channels}")
+            
+            # Convert stereo to mono if necessary
+            if self.channels == 2:
+                audio_array = np.frombuffer(audio_segment, dtype=np.int16)
+                audio_array = audio_array.reshape((-1, 2))
+                audio_mono = audio_array.mean(axis=1).astype(np.int16)
+                audio_segment = audio_mono.tobytes()
+            
+            # Ensure the frame size is correct (30ms at 48000 Hz = 1440 samples)
+            frame_size = int(0.03 * self.rate)
+            if len(audio_segment) != frame_size * 2:  # *2 because it's 16-bit audio
+                self.logger.warning(f"Incorrect frame size. Expected {frame_size*2}, got {len(audio_segment)}")
+                audio_segment = audio_segment[:frame_size*2]
+            
             is_speech = self.vad.is_speech(audio_segment, self.rate)
             if is_speech:
                 self.speech_frames_count += 1
             else:
                 self.speech_frames_count = max(0, self.speech_frames_count - 1)
-
             self.logger.debug(f"VAD speech: {is_speech}, Speech frames: {self.speech_frames_count}, Threshold: {self.speech_frames_threshold}")
             return self.speech_frames_count >= self.speech_frames_threshold
         except Exception as e:
-            self.logger.error(f"Error in VAD: {str(e)}")
+            self.logger.error(f"Error in VAD: {str(e)}", exc_info=True)
+            self.logger.debug(f"Audio segment details: length={len(audio_segment)}, first few bytes: {audio_segment[:20]}")
             return False
 
     def stop_stream(self):

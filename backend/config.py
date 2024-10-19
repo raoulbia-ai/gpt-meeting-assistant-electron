@@ -7,10 +7,11 @@ class Config:
         self.cooldown_duration = 5
         self.min_buffer_size = 32000
         self.max_buffer_wait_time = 5 
-        self.chunk = 960
-        self.channels = 1
-        self.rate = 32000 # 48000
+        self.rate = 48000  # 32000
         self.frame_duration_ms = 30
+        self.chunk = int(self.rate * self.frame_duration_ms / 1000)
+        self.channels = 1
+
         # Removed websocket_host and websocket_port as they are hardcoded in websocket_manager.py
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.api_url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01"
