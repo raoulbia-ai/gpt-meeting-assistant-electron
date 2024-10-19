@@ -8,7 +8,7 @@ class Config:
         self.cooldown_duration = 5
         self.min_buffer_size = 32000
         self.max_buffer_wait_time = 5 
-        self.rate = 24000  # Set sample rate to 24kHz as required by the API
+        self.rate = 48000  # Set sample rate to 24kHz as required by the API
         self.frame_duration_ms = 30  # Use 20 ms frames for VAD
         self.channels = 1
         self.format = pyaudio.paInt16  # Add this line
