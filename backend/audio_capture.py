@@ -103,7 +103,7 @@ class AudioCapture:
             raise RuntimeError("Audio stream is not initialized")
 
         loop = asyncio.get_event_loop()
-        num_frames = self.chunk // pyaudio.get_sample_size(self.format)
+        num_frames = self.chunk  # Use self.chunk directly as the number of frames
         try:
             audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, False)
         except Exception as e:
@@ -132,15 +132,15 @@ class AudioCapture:
             self.logger.debug(f"Audio segment sample rate: {self.rate}, channels: {self.channels}")
 
             # Use self.frame_duration_ms instead of hardcoded 30 ms
-            samples_per_frame = int(self.rate * self.frame_duration_ms / 1000)
+            samples_per_frame = self.chunk
+            expected_frame_length = samples_per_frame * pyaudio.get_sample_size(self.format)
 
             # Split the audio segment into frames of the correct size
-            frames = [audio_segment[i:i+samples_per_frame*2] for i in range(0, len(audio_segment), samples_per_frame*2)]
+            frames = [audio_segment[i:i+expected_frame_length] for i in range(0, len(audio_segment), expected_frame_length)]
 
             is_speech_frame = False
             for frame in frames:
-                expected_frame_length = samples_per_frame * 2
-                self.logger.debug(f"Processing frame of length: {len(frame)} (expected: {expected_frame_length})")
+                self.logger.debug(f"Processing frame of length: {len(frame)} bytes (expected: {expected_frame_length} bytes)")
                 if len(frame) == expected_frame_length:
                     is_speech_frame = self.vad.is_speech(frame, self.rate)
                     self.logger.debug(f"VAD result for frame: {is_speech_frame}")
