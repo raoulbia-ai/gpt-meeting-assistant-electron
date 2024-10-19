@@ -103,7 +103,11 @@ class AudioCapture:
 
         loop = asyncio.get_event_loop()
         num_frames = self.chunk // pyaudio.get_sample_size(self.format)
-        audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, False)
+        try:
+            audio_data = await loop.run_in_executor(None, self.stream.read, num_frames, False)
+        except Exception as e:
+            self.logger.error(f"Error reading audio data: {e}")
+            return b''  # Return empty bytes to avoid crashing
 
         # Convert audio data to numpy array
         audio_array = np.frombuffer(audio_data, dtype=np.int16)
