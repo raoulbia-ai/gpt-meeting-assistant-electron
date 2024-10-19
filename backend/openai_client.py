@@ -86,10 +86,10 @@ class OpenAIClient:
             message = {
                 "event_id": self.generate_event_id(),
                 "type": "input_audio_buffer.append",
-                "audio": audio_buffer.decode('latin1')  # Convert bytes to string
+                "audio": encoded_audio  # Base64-encoded audio string
             }
             await self.websocket.send(json.dumps(message))
-            self.logger.debug(f"Sent audio message of size: {encoded_size} characters")
+            self.logger.debug(f"Sent audio message of size: {len(encoded_audio)} characters")
 
             # Send commit message immediately after appending audio
             commit_message = {

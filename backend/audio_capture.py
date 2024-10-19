@@ -1,3 +1,5 @@
+from pydub import AudioSegment
+import io
 import pyaudio
 import webrtcvad
 import numpy as np
@@ -110,18 +112,27 @@ class AudioCapture:
             self.logger.error(f"Error reading audio data: {e}")
             return b''  # Return empty bytes to avoid crashing
 
-        # Convert audio data to numpy array
-        audio_array = np.frombuffer(audio_data, dtype=np.int16)
-
-        # Check if audio is stereo (more than one channel)
-        if self.channels > 1 or (audio_array.ndim > 1 and audio_array.shape[1] > 1):
-            # Downmix stereo to mono by averaging channels
-            audio_array = audio_array.mean(axis=-1).astype(np.int16)
-            self.logger.debug("Audio data downmixed to mono")
-
-        # Convert back to bytes
-        audio_data = audio_array.tobytes()
-        rms = np.sqrt(np.mean(np.square(audio_array.astype(np.float32))))
+        # Convert bytes to AudioSegment
+        audio_segment = AudioSegment(
+            data=audio_data,
+            sample_width=pyaudio.get_sample_size(self.format),
+            frame_rate=self.rate,
+            channels=self.channels
+        )
+        
+        # Resample to 24000 Hz
+        if self.rate != 24000:
+            audio_segment = audio_segment.set_frame_rate(24000)
+        
+        # Ensure mono
+        if self.channels > 1:
+            audio_segment = audio_segment.set_channels(1)
+        
+        # Get raw audio data
+        audio_data = audio_segment.raw_data
+        self.rate = 24000  # Update rate
+        
+        rms = audio_segment.rms
         self.logger.debug(f"Audio RMS: {rms}")
 
         return audio_data
