@@ -11,6 +11,7 @@ class Config:
         self.rate = 48000  # Set sample rate to 16000 Hz
         self.frame_duration_ms = 30  # Use 20 ms frames for VAD
         self.channels = 1
+        self.format = pyaudio.paInt16  # Add this line
         self.sample_width = pyaudio.get_sample_size(self.format)
         self.chunk = int(self.rate * self.frame_duration_ms / 1000)
 
