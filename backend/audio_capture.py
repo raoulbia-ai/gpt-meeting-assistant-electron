@@ -6,6 +6,8 @@ import logging
 from common_logging import setup_logging
 import os
 import asyncio
+from pydub import AudioSegment
+import io
 
 class AudioCapture:
     def __init__(self, config, debug_to_console=False):
@@ -16,12 +18,12 @@ class AudioCapture:
         self.frame_duration_ms = config.frame_duration_ms
         self.p = pyaudio.PyAudio()
         self.stream = None
-        self.vad = webrtcvad.Vad(2)  # Aggressiveness level
+        self.vad = webrtcvad.Vad(3)  # Aggressiveness level
         self.device_index = None
         self.logger = logging.getLogger('audio_capture')
 
         # Speech detection parameters
-        self.speech_frames_threshold = int(0.5 * self.rate / self.chunk)
+        self.speech_frames_threshold = int(0.3 * self.rate / self.chunk)  # <<<<<<<<<<<<<<<<<<<<
         self.speech_frames_count = 0
 
         # self.setup_logging(debug_to_console)
@@ -77,16 +79,21 @@ class AudioCapture:
         self.logger.info("Starting audio stream")
         if self.device_index is None:
             self.select_audio_device()
-        
         try:
             if self.stream is None:
+                # Calculate bytes per sample
+                bytes_per_sample = pyaudio.get_sample_size(self.format)
+                
+                # Calculate the number of frames based on chunk size and bytes per sample
+                frames_per_buffer = self.chunk // (bytes_per_sample * self.channels)
+                
                 self.stream = self.p.open(format=self.format,
                                           channels=self.channels,
                                           rate=self.rate,
                                           input=True,
                                           input_device_index=self.device_index,
-                                          frames_per_buffer=self.chunk)
-                self.logger.info(f"Audio stream started for device {self.device_index}")
+                                          frames_per_buffer=frames_per_buffer)
+                self.logger.info(f"Audio stream started for device {self.device_index} with rate {self.rate} and chunk size {self.chunk}")
             else:
                 self.logger.info("Audio stream already started")
         except OSError as e:
@@ -99,46 +106,55 @@ class AudioCapture:
         if self.stream is None:
             self.logger.error("Audio stream is not initialized")
             raise RuntimeError("Audio stream is not initialized")
+
         loop = asyncio.get_event_loop()
-        audio_data = await loop.run_in_executor(None, self.stream.read, self.chunk, False)
-        
+        audio_data = await loop.run_in_executor(None, self.stream.read, self.chunk // (pyaudio.get_sample_size(self.format) * self.channels))
+
+        # Ensure the audio data is exactly 1920 bytes
+        if len(audio_data) != self.chunk:
+            self.logger.warning(f"Audio data size mismatch. Expected {self.chunk}, got {len(audio_data)}")
+            audio_data = audio_data[:self.chunk]  # Truncate if too long
+            audio_data = audio_data.ljust(self.chunk, b'\0')  # Pad if too short
+
         # Log the audio levels
         audio_array = np.frombuffer(audio_data, dtype=np.int16)
         rms = np.sqrt(np.mean(np.square(audio_array.astype(np.float32))))
         self.logger.debug(f"Audio RMS: {rms}")
-        
+
         return audio_data
 
     async def is_speech(self, audio_segment):
         try:
             self.logger.debug(f"Processing audio segment of length: {len(audio_segment)}")
             self.logger.debug(f"Audio segment sample rate: {self.rate}, channels: {self.channels}")
+
+            # WebRTC VAD only accepts 10, 20, or 30 ms audio frames
+            frame_duration_ms = 30
+            samples_per_frame = int(self.rate * frame_duration_ms / 1000)
             
-            # Convert stereo to mono if necessary
-            if self.channels == 2:
-                audio_array = np.frombuffer(audio_segment, dtype=np.int16)
-                audio_array = audio_array.reshape((-1, 2))
-                audio_mono = audio_array.mean(axis=1).astype(np.int16)
-                audio_segment = audio_mono.tobytes()
+            # Split the audio segment into 30ms frames
+            frames = [audio_segment[i:i+samples_per_frame*2] for i in range(0, len(audio_segment), samples_per_frame*2)]
             
-            # Ensure the frame size is correct (30ms at 48000 Hz = 1440 samples)
-            frame_size = int(0.03 * self.rate)
-            if len(audio_segment) != frame_size * 2:  # *2 because it's 16-bit audio
-                self.logger.warning(f"Incorrect frame size. Expected {frame_size*2}, got {len(audio_segment)}")
-                audio_segment = audio_segment[:frame_size*2]
-            
-            is_speech = self.vad.is_speech(audio_segment, self.rate)
-            if is_speech:
+            is_speech_frame = False
+            for frame in frames:
+                if len(frame) == samples_per_frame * 2:  # Ensure the frame is complete
+                    is_speech_frame = self.vad.is_speech(frame, self.rate)
+                    if is_speech_frame:
+                        break  # If any frame is speech, consider the whole segment as speech
+
+            if is_speech_frame:
                 self.speech_frames_count += 1
             else:
                 self.speech_frames_count = max(0, self.speech_frames_count - 1)
-            self.logger.debug(f"VAD speech: {is_speech}, Speech frames: {self.speech_frames_count}, Threshold: {self.speech_frames_threshold}")
+
+            self.logger.debug(f"VAD speech: {is_speech_frame}, Speech frames: {self.speech_frames_count}, Threshold: {self.speech_frames_threshold}")
             return self.speech_frames_count >= self.speech_frames_threshold
+
         except Exception as e:
             self.logger.error(f"Error in VAD: {str(e)}", exc_info=True)
             self.logger.debug(f"Audio segment details: length={len(audio_segment)}, first few bytes: {audio_segment[:20]}")
             return False
-
+        
     def stop_stream(self):
         if self.stream is not None:
             self.logger.info("Stopping audio stream")

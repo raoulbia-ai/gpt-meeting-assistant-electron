@@ -7,7 +7,7 @@ class Config:
         self.cooldown_duration = 5
         self.min_buffer_size = 32000
         self.max_buffer_wait_time = 5 
-        self.rate = 48000  # 32000
+        self.rate = 48000 #32000
         self.frame_duration_ms = 30
         self.chunk = int(self.rate * self.frame_duration_ms / 1000)
         self.channels = 1
