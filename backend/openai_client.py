@@ -82,7 +82,7 @@ class OpenAIClient:
             self.logger.warning("Attempted to send empty audio buffer. Skipping API call.")
             return
 
-        try:
+        encoded_audio = self.encode_audio(audio_buffer)
             message = {
                 "event_id": self.generate_event_id(),
                 "type": "input_audio_buffer.append",
