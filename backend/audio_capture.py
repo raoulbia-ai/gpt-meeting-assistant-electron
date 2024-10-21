@@ -29,7 +29,7 @@ class AudioCapture:
 
         # Speech detection parameters
         frames_per_second = 1000 / self.frame_duration_ms
-        self.speech_frames_threshold = int(0.5 * frames_per_second)  # 0.3 seconds worth of frames
+        self.speech_frames_threshold = int(0.3 * frames_per_second)  # Reduced from 0.5 to 0.3 seconds
         self.speech_frames_count = 0
 
         # self.setup_logging(debug_to_console)
@@ -109,6 +109,7 @@ class AudioCapture:
 
         try:
             audio_data = self.stream.read(self.chunk, exception_on_overflow=False)
+            # Process audio data immediately after reading
         except Exception as e:
             self.logger.error(f"Error reading audio data: {e}")
             return b''  # Return empty bytes to avoid crashing

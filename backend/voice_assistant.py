@@ -44,6 +44,7 @@ class VoiceAssistant:
         self.audio_capture.stop_stream()  # Stop the audio stream
         if self.audio_buffer:
             await self.send_buffer_to_api()  # Start processing immediately
+            await self.send_buffer_to_api()  # Start processing immediately
         await self.websocket_manager.broadcast_status("paused", False)  # Broadcast paused status
         self.logger.info("Assistant paused")
 
@@ -98,7 +99,7 @@ class VoiceAssistant:
         try:
             while self.is_running:
                 if self.is_paused:
-                    await asyncio.sleep(0.01)  # Keep sleep minimal
+                    await asyncio.sleep(0.01)  # Minimal sleep to prevent CPU spike
                     continue
                 try:
                     audio_chunk = await self.audio_capture.read_audio()

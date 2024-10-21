@@ -6,7 +6,7 @@ class Config:
         self.max_api_calls = -1  # Set from environment or parameters
         self.silence_threshold = 1
         self.cooldown_duration = 0.5
-        self.min_buffer_size = 16000
+        self.min_buffer_size = 8000  # Reduced from 16000 bytes
         self.max_buffer_wait_time = 1 
         self.rate = 48000  # Keep sample rate at 48000 Hz
         self.frame_duration_ms = 20  # Reduced from 30 ms
