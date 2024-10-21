@@ -42,11 +42,17 @@ class VoiceAssistant:
             return  # Already paused
         self.is_paused = True  # Set the paused flag
         self.audio_capture.stop_stream()  # Stop the audio stream
-        if self.audio_buffer:
-            await self.send_buffer_to_api()  # Start processing immediately
-            await self.send_buffer_to_api()  # Start processing immediately
-        await self.websocket_manager.broadcast_status("paused", False)  # Broadcast paused status
         self.logger.info("Assistant paused")
+
+        # If there's audio in the buffer, send it to the API
+        if self.audio_buffer:
+            await self.send_buffer_to_api()
+            # Clear the buffer and reset variables
+            self.audio_buffer = b''
+            self.buffer_ready.clear()
+
+        # Broadcast paused status
+        await self.websocket_manager.broadcast_status("paused", False)
 
     async def resume(self):
         if not self.is_paused:
