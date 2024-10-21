@@ -16,27 +16,7 @@ class OpenAIClient:
         self.logger = logging.getLogger('openai_client')
         # self.setup_logging(debug_to_console)
         self.logger = setup_logging('openai_client')
-
-    # def setup_logging(self, debug_to_console=False):
-    #     self.logger.setLevel(logging.CRITICAL)
-        
-    #     # Ensure the logs directory exists
-    #     os.makedirs('logs', exist_ok=True)
-        
-    #     # File handler
-    #     file_handler = RotatingFileHandler('logs/openai_client.log', maxBytes=10000000, backupCount=5)
-    #     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    #     file_handler.setFormatter(file_formatter)
-    #     self.logger.addHandler(file_handler)
-
-    #     if debug_to_console:
-    #         # Console handler for debug mode
-    #         console_handler = logging.StreamHandler()
-    #         console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    #         console_handler.setFormatter(console_formatter)
-    #         console_handler.setLevel(logging.DEBUG)
-    #         self.logger.addHandler(console_handler)
-    
+   
     async def connect(self):
         headers = {
             "Authorization": f"Bearer {self.api_key}",
