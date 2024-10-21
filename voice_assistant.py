@@ -14,15 +14,16 @@ class VoiceAssistant:
 
     async def pause(self):
         self.is_paused = True
-        self.logger.info("Assistant paused")
+        self.logger.info("Assistant paused. Stopping capture and processing audio.")
+        
         # Stop audio capture
         self.audio_capture.stop_stream()
-        # Clear audio buffer
-        self.audio_buffer = b''
-        # Reset speech detection state
-        self.speech_frames_count = 0
-        self.is_sending_audio = False
-        self.is_processing = False
+        
+        # If there's audio in the buffer, send it for transcription
+        if self.audio_buffer:
+            await self.send_audio_to_api(self.audio_buffer)
+            self.audio_buffer = b''
+            self.speech_frames_count = 0
 
     async def resume(self):
         self.is_paused = False
