@@ -42,6 +42,8 @@ class VoiceAssistant:
             return  # Already paused
         self.is_paused = True  # Set the paused flag
         self.audio_capture.stop_stream()  # Stop the audio stream
+        if self.audio_buffer:
+            await self.send_buffer_to_api()  # Start processing immediately
         await self.websocket_manager.broadcast_status("paused", False)  # Broadcast paused status
         self.logger.info("Assistant paused")
 
@@ -96,7 +98,7 @@ class VoiceAssistant:
         try:
             while self.is_running:
                 if self.is_paused:
-                    await asyncio.sleep(0.1)  # Pause processing
+                    await asyncio.sleep(0.01)  # Keep sleep minimal
                     continue
                 try:
                     audio_chunk = await self.audio_capture.read_audio()
@@ -147,30 +149,25 @@ class VoiceAssistant:
         from pydub import AudioSegment
 
         try:
-            self.waiting_for_response = True  # Set before sending to prevent new API calls
-            await self.websocket_manager.broadcast_new_response()
+        self.waiting_for_response = True  # Set before sending to prevent new API calls
+        await self.websocket_manager.broadcast_new_response()
 
-            # Resample audio to 24000 Hz before sending to the API
-            audio_segment = AudioSegment(
-                data=self.audio_buffer,
-                sample_width=pyaudio.get_sample_size(self.audio_capture.format),
-                frame_rate=self.audio_capture.rate,
-                channels=self.audio_capture.channels
-            )
-            audio_segment = audio_segment.set_frame_rate(24000)
-            audio_segment = audio_segment.set_channels(1)
-            resampled_audio_buffer = audio_segment.raw_data
+        # Resample audio to 24000 Hz before sending to the API
+        audio_segment = AudioSegment(
+            data=self.audio_buffer,
+            sample_width=pyaudio.get_sample_size(self.audio_capture.format),
+            frame_rate=self.audio_capture.rate,
+            channels=self.audio_capture.channels
+        )
+        audio_segment = audio_segment.set_frame_rate(24000)
+        audio_segment = audio_segment.set_channels(1)
+        resampled_audio_buffer = audio_segment.raw_data
 
-            api_call_made = await self.send_audio_to_api(resampled_audio_buffer)
-            if api_call_made:
-                self.audio_buffer = b""
-                self.buffer_ready.clear()
-                self.cooldown_active = True
-                asyncio.create_task(self.cooldown_timer())
-            else:
-                self.logger.info("Audio buffer was not sent to API. Clearing buffer.")
-                self.audio_buffer = b""
-                self.buffer_ready.clear()
+        await self.send_audio_to_api(resampled_audio_buffer)
+        self.audio_buffer = b""
+        self.buffer_ready.clear()
+        self.cooldown_active = True
+        asyncio.create_task(self.cooldown_timer())
         except Exception as e:
             self.logger.error(f"Error in send_buffer_to_api: {str(e)}", exc_info=True)
 

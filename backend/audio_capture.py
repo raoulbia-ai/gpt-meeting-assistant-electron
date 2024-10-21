@@ -107,12 +107,8 @@ class AudioCapture:
             self.logger.error("Audio stream is not initialized")
             raise RuntimeError("Audio stream is not initialized")
 
-        loop = asyncio.get_event_loop()
-        num_frames = self.chunk
         try:
-            # Use functools.partial to create a callable with keyword arguments
-            read_func = functools.partial(self.stream.read, num_frames, exception_on_overflow=False)
-            audio_data = await loop.run_in_executor(None, read_func)
+            audio_data = self.stream.read(self.chunk, exception_on_overflow=False)
         except Exception as e:
             self.logger.error(f"Error reading audio data: {e}")
             return b''  # Return empty bytes to avoid crashing
