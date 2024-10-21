@@ -10,8 +10,11 @@ def setup_logging(name, debug_to_console=False):
     
     logger.setLevel(logging.DEBUG)
     
+    # Use an absolute path based on the script's location                                                                    
+    log_dir = os.path.join(os.path.dirname(__file__), 'logs') 
+    
     # Ensure the logs directory exists
-    os.makedirs('backend/logs', exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
     
     # File handler
     file_handler = RotatingFileHandler(f'logs/{name}.log', maxBytes=10000000, backupCount=5)
