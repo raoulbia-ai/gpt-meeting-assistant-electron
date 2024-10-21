@@ -149,25 +149,25 @@ class VoiceAssistant:
         from pydub import AudioSegment
 
         try:
-        self.waiting_for_response = True  # Set before sending to prevent new API calls
-        await self.websocket_manager.broadcast_new_response()
+            self.waiting_for_response = True  # Set before sending to prevent new API calls
+            await self.websocket_manager.broadcast_new_response()
 
-        # Resample audio to 24000 Hz before sending to the API
-        audio_segment = AudioSegment(
-            data=self.audio_buffer,
-            sample_width=pyaudio.get_sample_size(self.audio_capture.format),
-            frame_rate=self.audio_capture.rate,
-            channels=self.audio_capture.channels
-        )
-        audio_segment = audio_segment.set_frame_rate(24000)
-        audio_segment = audio_segment.set_channels(1)
-        resampled_audio_buffer = audio_segment.raw_data
+            # Resample audio to 24000 Hz before sending to the API
+            audio_segment = AudioSegment(
+                data=self.audio_buffer,
+                sample_width=pyaudio.get_sample_size(self.audio_capture.format),
+                frame_rate=self.audio_capture.rate,
+                channels=self.audio_capture.channels
+            )
+            audio_segment = audio_segment.set_frame_rate(24000)
+            audio_segment = audio_segment.set_channels(1)
+            resampled_audio_buffer = audio_segment.raw_data
 
-        await self.send_audio_to_api(resampled_audio_buffer)
-        self.audio_buffer = b""
-        self.buffer_ready.clear()
-        self.cooldown_active = True
-        asyncio.create_task(self.cooldown_timer())
+            await self.send_audio_to_api(resampled_audio_buffer)
+            self.audio_buffer = b""
+            self.buffer_ready.clear()
+            self.cooldown_active = True
+            asyncio.create_task(self.cooldown_timer())
         except Exception as e:
             self.logger.error(f"Error in send_buffer_to_api: {str(e)}", exc_info=True)
 
