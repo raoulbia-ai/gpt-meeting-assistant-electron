@@ -5,7 +5,6 @@ import pyaudio
 import webrtcvad
 import numpy as np
 import logging
-# from logging.handlers import RotatingFileHandler
 from common_logging import setup_logging
 import os
 import asyncio

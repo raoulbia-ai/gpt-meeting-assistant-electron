@@ -4,7 +4,6 @@ import asyncio
 import websockets
 import base64
 import logging
-# from logging.handlers import RotatingFileHandler
 from common_logging import setup_logging
 
 class OpenAIClient:
@@ -15,7 +14,7 @@ class OpenAIClient:
         self.websocket = None
         self.logger = logging.getLogger('openai_client')
         # self.setup_logging(debug_to_console)
-        self.logger = setup_logging('openai_client')
+        self.logger = setup_logging('openai_client', filter_response_done=True)
    
     async def connect(self):
         headers = {

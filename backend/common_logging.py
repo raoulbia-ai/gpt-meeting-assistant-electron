@@ -1,8 +1,18 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+import re
 
-def setup_logging(name, debug_to_console=False):
+class ResponseDoneFilter(logging.Filter):                                                                                       
+     def filter(self, record):                                                                                                   
+         # Use a regular expression to extract the 'type' field from the log message                                             
+         match = re.search(r"'type': '([^']+)'", record.getMessage())                                                            
+         if match:                                                                                                               
+             return match.group(1) == 'response.done'                                                                            
+         return False  
+     
+        
+def setup_logging(name, debug_to_console=False, filter_response_done=False):
     logger = logging.getLogger(name)
     
     if logger.hasHandlers():  # Check if handlers are already set up
@@ -30,5 +40,9 @@ def setup_logging(name, debug_to_console=False):
         console_handler.setLevel(logging.DEBUG)
         logger.addHandler(console_handler)
     
+    if filter_response_done:                                                                                                    
+        response_done_filter = ResponseDoneFilter()                                                                             
+        logger.addFilter(response_done_filter)  
+        
     return logger
 
