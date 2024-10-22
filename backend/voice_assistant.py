@@ -231,6 +231,12 @@ class VoiceAssistant:
                     self.logger.error(f"Invalid API response type: {type(response)}")
                     continue
 
+                if response['type'] == 'session_reset':
+                    self.logger.info("Session was reset. Restarting the conversation.")
+                    self.waiting_for_response = False
+                    await self.websocket_manager.broadcast_status("ready", False)
+                    continue
+
                 # Forward the response to the frontend
                 await self.websocket_manager.broadcast_response(response)
 
@@ -252,6 +258,10 @@ class VoiceAssistant:
                     self.waiting_for_response = False
                     self.logger.debug("waiting_for_response set to False")
                     await self.websocket_manager.broadcast_status("error", False)
+                    if error_code == 'session_expired':
+                        self.logger.info("Session expired. Attempting to reconnect.")
+                        await self.openai_client.reset_session()
+                        await self.websocket_manager.broadcast_status("ready", False)
                 else:
                     self.logger.debug(f"Received response type: {response['type']}")
         except asyncio.CancelledError:

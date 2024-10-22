@@ -100,6 +100,12 @@ class OpenAIClient:
             response = await self.websocket.recv()
             parsed_response = json.loads(response)
             self.logger.debug(f"Received response: {parsed_response}")
+            
+            if parsed_response.get('type') == 'error' and parsed_response.get('error', {}).get('code') == 'session_expired':
+                self.logger.warning("Session expired. Attempting to reconnect.")
+                await self.reset_session()
+                return {'type': 'session_reset'}
+            
             return parsed_response
         except websockets.exceptions.ConnectionClosed as e:
             self.logger.error(f"WebSocket connection closed: {e}")
