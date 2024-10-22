@@ -1,5 +1,5 @@
 {
-  "name": "meeting-assistant",
+  "name": "OpenAI Virtual Prompter",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
