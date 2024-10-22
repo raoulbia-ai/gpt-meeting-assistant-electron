@@ -19,8 +19,8 @@ class Config:
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.api_url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01"
         self.instructions = """You are a helpful assistant. You are helping me answer interview questions.
-                               Provide concise and direct answers. Make it easy for me to read.
-                               Avoid unnecessary elaboration unless specifically requested."""
+                               Provide concise and direct answers. Present responses as concise bullet points.
+                               No markdown. Avoid unnecessary elaboration unless specifically requested."""
         self.voice = "alloy"
         self.temperature = 0.6
         self.question_starters = ['what', 'when', 'where', 'who', 'why', 'how', 'can', 'could', 'would', 'will', 'do', 'does', 'is', 'are']
