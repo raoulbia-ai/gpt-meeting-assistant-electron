@@ -43,6 +43,10 @@ Whether you're a professional speaker looking to improve your delivery, a conten
 - **Draggable Floating Prompter**: A customizable and movable UI component for displaying assistant responses.
 - **Error Handling and Logging**: Comprehensive logging and error handling mechanisms for robust performance.
 - **Extensible Architecture**: Modular design for easy extension and integration with other services.
+- **Automatic Reconnection**: Designed to bypass the 15-minute OpenAI limitation by automatically reconnecting.
+- **Keyboard Control**: Start and stop listening with the spacebar (initial start requires clicking the "Start Listening" button).
+
+**Note**: This application is a Proof of Concept (PoC). While it has been successfully tested, users should expect potential bugs and issues.
 
 ## Screenshots
 
