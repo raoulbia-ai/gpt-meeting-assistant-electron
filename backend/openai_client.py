@@ -4,6 +4,7 @@ import asyncio
 import websockets
 import base64
 import logging
+import time
 from common_logging import setup_logging
 
 class OpenAIClient:
@@ -12,17 +13,23 @@ class OpenAIClient:
         self.api_key = self.config.api_key
         self.api_url = self.config.api_url
         self.websocket = None
-        self.logger = logging.getLogger('openai_client')
-        # self.setup_logging(debug_to_console)
         self.logger = setup_logging('openai_client', filter_response_done=True)
-   
+        self.last_reset_time = time.time()
+        self.reset_pending = False
+
     async def connect(self):
+        if self.websocket and not self.websocket.closed:
+            await self.websocket.close()
+        
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "OpenAI-Beta": "realtime=v1",
             "Content-Type": "application/json"
         }
         self.websocket = await websockets.connect(self.api_url, extra_headers=headers)
+        await self.initialize_session()
+        self.last_reset_time = time.time()
+        self.reset_pending = False
         self.logger.info("Connected to OpenAI API")
 
     async def initialize_session(self):
@@ -49,16 +56,22 @@ class OpenAIClient:
         response = await self.websocket.recv()
         self.logger.debug(f"Session initialization response: {response}")
 
+    async def reset_session(self):
+        self.logger.info("Resetting OpenAI session")
+        await self.connect()
+
+    def should_reset(self):
+        return time.time() - self.last_reset_time > 600  # 10 minutes
+
     async def send_audio(self, audio_buffer):
+        if self.should_reset():
+            self.reset_pending = True
+
+        if self.reset_pending:
+            await self.reset_session()
+
         if not isinstance(audio_buffer, bytes):
             self.logger.error(f"Invalid audio buffer type: {type(audio_buffer)}. Expected bytes.")
-            return
-
-        buffer_size = len(audio_buffer)
-        self.logger.info(f"Attempting to send audio buffer of size: {buffer_size} bytes")
-
-        if buffer_size == 0:
-            self.logger.warning("Attempted to send empty audio buffer. Skipping API call.")
             return
 
         try:
@@ -66,11 +79,10 @@ class OpenAIClient:
             message = {
                 "event_id": self.generate_event_id(),
                 "type": "input_audio_buffer.append",
-                "audio": encoded_audio  # Base64-encoded audio string
+                "audio": encoded_audio
             }
             await self.websocket.send(json.dumps(message))
             self.logger.debug(f"Audio data sent to API")
-            self.logger.debug(f"Sent audio message of size: {len(encoded_audio)} characters")
 
             # Send commit message immediately after appending audio
             commit_message = {

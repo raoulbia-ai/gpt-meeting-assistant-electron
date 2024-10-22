@@ -36,6 +36,9 @@ class VoiceAssistant:
 
         self.process_audio_task = None
         self.is_paused = False  # Ensure this line is present
+        self._is_idle = True
+        self._is_recording = False
+        self._is_processing = False
 
     async def pause(self):
         if self.is_paused:
@@ -67,25 +70,30 @@ class VoiceAssistant:
         await self.websocket_manager.broadcast_status("listening", True)  # Broadcast listening status
         self.logger.info("Assistant resumed")
 
+    @property
+    def is_idle(self):
+        return (not self._is_recording and 
+                not self._is_processing and 
+                not self.waiting_for_response and 
+                not self.cooldown_active)
+
     async def run(self):
         try:
             await self.websocket_manager.start()
             await self.openai_client.connect()
-            await self.openai_client.initialize_session()
 
             self.audio_capture.select_audio_device()
             self.logger.info("Voice Assistant is ready.")
             await self.websocket_manager.broadcast_status("ready", False)
 
-            # Start process_audio task
-            # self.is_running = True
             self.process_audio_task = asyncio.create_task(self.process_audio())
-            
-            # Start handle_api_responses task
             api_task = asyncio.create_task(self.handle_api_responses())
 
-            # Wait for both tasks
-            await asyncio.gather(self.process_audio_task, api_task)
+            while True:
+                if self.is_idle and self.openai_client.reset_pending:
+                    await self.openai_client.reset_session()
+                
+                await asyncio.sleep(1)  # Check every second
 
         except websockets.exceptions.ConnectionClosed as e:
             self.logger.error(f"WebSocket connection closed: {str(e)}")
@@ -105,44 +113,49 @@ class VoiceAssistant:
         try:
             while self.is_running:
                 if self.is_paused:
-                    await asyncio.sleep(0.01)  # Minimal sleep to prevent CPU spike
+                    await asyncio.sleep(0.01)
                     continue
                 try:
+                    self._is_recording = True
                     audio_chunk = await self.audio_capture.read_audio()
-                except Exception as e:
-                    self.logger.error(f"Error reading audio: {str(e)}", exc_info=True)
-                    break  # Exit the loop if we can't read audio
-                is_speech = await self.audio_capture.is_speech(audio_chunk)
+                    self._is_recording = False
+                    self._is_processing = True
+                    is_speech = await self.audio_capture.is_speech(audio_chunk)
+                    self._is_processing = False
 
-                await self.websocket_manager.broadcast_status("listening" if is_speech else "idle", is_speech)
+                    await self.websocket_manager.broadcast_status("listening" if is_speech else "idle", is_speech)
 
-                if is_speech:
-                    self.audio_buffer += audio_chunk
-                    self.last_audio_time = time.time()
-                    self.logger.debug(f"Speech detected. Buffer size: {len(self.audio_buffer)}")
+                    if is_speech:
+                        self.audio_buffer += audio_chunk
+                        self.last_audio_time = time.time()
+                        self.logger.debug(f"Speech detected. Buffer size: {len(self.audio_buffer)}")
 
-                    if len(self.audio_buffer) >= self.min_buffer_size:
-                        self.buffer_ready.set()
-
-                if not is_speech and self.buffer_ready.is_set():
-                    if not self.waiting_for_response and not self.cooldown_active:
                         if len(self.audio_buffer) >= self.min_buffer_size:
+                            self.buffer_ready.set()
+
+                    if not is_speech and self.buffer_ready.is_set():
+                        if not self.waiting_for_response and not self.cooldown_active:
+                            if len(self.audio_buffer) >= self.min_buffer_size:
+                                await self.send_buffer_to_api()
+                            else:
+                                self.logger.info("Audio buffer is too small or empty. Not sending to API.")
+                                self.audio_buffer = b""
+                                self.buffer_ready.clear()
+
+                    # Check for timeout
+                    if time.time() - self.last_audio_time > self.max_buffer_wait_time and len(self.audio_buffer) >= self.min_buffer_size:
+                        self.logger.info("Buffer wait time exceeded. Sending available audio.")
+                        if not self.waiting_for_response and not self.cooldown_active:
                             await self.send_buffer_to_api()
-                        else:
-                            self.logger.info("Audio buffer is too small or empty. Not sending to API.")
-                            self.audio_buffer = b""
-                            self.buffer_ready.clear()
 
-                # Check for timeout
-                if time.time() - self.last_audio_time > self.max_buffer_wait_time and len(self.audio_buffer) >= self.min_buffer_size:
-                    self.logger.info("Buffer wait time exceeded. Sending available audio.")
-                    if not self.waiting_for_response and not self.cooldown_active:
-                        await self.send_buffer_to_api()
-
-                await asyncio.sleep(0.01)
+                    await asyncio.sleep(0.01)
+                except Exception as e:
+                    self.logger.error(f"Error in audio processing: {str(e)}", exc_info=True)
         except asyncio.CancelledError:
             self.logger.info("Audio processing task cancelled")
         finally:
+            self._is_recording = False
+            self._is_processing = False
             self.logger.info("Stopped audio processing")
 
     async def send_buffer_to_api(self):
