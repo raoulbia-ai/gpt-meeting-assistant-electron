@@ -7,6 +7,7 @@ from openai_client import OpenAIClient
 from websocket_manager import WebSocketManager
 from response_processor import ResponseProcessor
 from config import Config
+import logging
 from common_logging import setup_logging
 
 class VoiceAssistant:
@@ -15,7 +16,7 @@ class VoiceAssistant:
         self.config = config
         self.max_api_calls = config.max_api_calls
         self.api_calls_made = 0
-        self.is_running = False  # Change from True to False
+        self.is_running = False
         self.waiting_for_response = False
         self.audio_buffer = b""
         self.silence_threshold = config.silence_threshold
@@ -31,11 +32,12 @@ class VoiceAssistant:
         self.websocket_manager = websocket_manager
         self.response_processor = response_processor
 
-        self.logger = setup_logging('voice_assistant')
+        self.logger = logging.getLogger('voice_assistant')
+        setup_logging('voice_assistant')
         self.logger.info("VoiceAssistant initialized")
 
         self.process_audio_task = None
-        self.is_paused = False  # Ensure this line is present
+        self.is_paused = False
         self._is_idle = True
         self._is_recording = False
         self._is_processing = False
@@ -104,7 +106,7 @@ class VoiceAssistant:
             # Attempt to reconnect
             await self.reconnect_openai_client()
         except Exception as e:
-            self.logger.error(f"Error in main loop: {str(e)}", exc_info=True)
+            self.logger.exception(f"Error in main loop: {str(e)}")
         finally:
             await self.cleanup()
 
@@ -150,7 +152,7 @@ class VoiceAssistant:
 
                     await asyncio.sleep(0.01)
                 except Exception as e:
-                    self.logger.error(f"Error in audio processing: {str(e)}", exc_info=True)
+                    self.logger.exception(f"Error in audio processing: {str(e)}")
         except asyncio.CancelledError:
             self.logger.info("Audio processing task cancelled")
         finally:
