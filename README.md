@@ -1,6 +1,19 @@
-# Voice Assistant Application
+# OpenAI Virtual Teleprompter
 
-Welcome to the **Voice Assistant Application**! This open-source project is a real-time voice assistant that leverages OpenAI's API to process and respond to user speech. Using your microphone input, it captures audio, processes it, and provides intelligent responses, making it versatile for applications like transcription, voice commands, and interactive dialogues.
+Welcome to the **OpenAI Virtual Teleprompter**! This innovative application transforms your spoken words into real-time text, powered by OpenAI's advanced language processing capabilities. Designed for professionals, content creators, and anyone who needs to maintain eye contact while delivering information, this tool acts as a smart, responsive teleprompter that adapts to your speech.
+
+## Introduction
+
+The OpenAI Virtual Teleprompter is not just a transcription tool; it's an intelligent assistant that can help clarify your thoughts, expand on your ideas, and even suggest improvements to your speech in real-time. By leveraging the power of OpenAI's API, it provides a seamless experience for users who need to speak coherently and confidently, whether in virtual meetings, presentations, or content creation sessions.
+
+Key features include:
+- Real-time speech-to-text conversion
+- Intelligent responses and suggestions from OpenAI
+- Customizable floating interface for easy viewing during use
+- Ability to pause and resume speech recognition
+- Adjustable opacity for the on-screen display
+
+Whether you're a professional speaker looking to improve your delivery, a content creator needing assistance with scripting, or anyone who wants to enhance their verbal communication, the OpenAI Virtual Teleprompter is here to support and elevate your speaking experience.
 
 ## Table of Contents
 
@@ -33,7 +46,13 @@ Welcome to the **Voice Assistant Application**! This open-source project is a re
 
 ## Screenshots
 
-*(Include screenshots of the application in action.)*
+![OpenAI Virtual Teleprompter Interface](img/OpenAI-Virtual-Prompter.png)
+
+This screenshot showcases the OpenAI Virtual Teleprompter interface, featuring:
+- A "Start Listening" button to begin speech recognition
+- A response area displaying the assistant's transcription and suggestions
+- An API call counter to track usage
+- An opacity slider for adjusting the interface transparency
 
 ## Prerequisites
 
@@ -139,39 +158,40 @@ Welcome to the **Voice Assistant Application**! This open-source project is a re
    npm install electron --save-dev
    ```
 
-## Usage
+## How the Application Works
 
-### Running the Application
+The OpenAI Virtual Teleprompter operates through a sophisticated pipeline:
 
-#### Start the Backend Server
+1. **Audio Capture**: The application uses PyAudio to capture real-time audio from your microphone. It's specifically configured for the Logitech Yeti Blue microphone, ensuring high-quality audio input.
 
-```bash
-cd backend
-python voice_assistant.py
-```
+2. **Speech Processing**: The captured audio is sent to OpenAI's API, which converts the speech to text and processes the content.
 
-- The application will prompt you to enter the maximum number of API calls. Enter `-1` for unlimited calls.
-- The assistant will initialize and start listening for audio input.
+3. **Real-time Display**: The transcribed text and any AI-generated suggestions are immediately displayed on the floating interface, allowing you to read and react in real-time.
 
-#### Start the Frontend Application
+4. **Intelligent Assistance**: Beyond mere transcription, the OpenAI API can provide context-aware suggestions, clarifications, or expansions on your speech, enhancing your delivery.
 
-In a new terminal window at the root of the project:
+5. **User Interaction**: You can control the application using voice commands or the on-screen interface, allowing you to pause, resume, or adjust settings as needed.
 
-```bash
-npm start
-```
+6. **Customizable Interface**: The floating prompter can be moved around the screen and its opacity adjusted, ensuring it doesn't interfere with other applications or your camera during use.
 
-- This will build the frontend and launch the Electron application.
-- The floating prompter UI should appear on your screen.
+### Usage in Virtual Meetings
 
-### Interacting with the Assistant
+When using the OpenAI Virtual Teleprompter during virtual meetings, it's important to note that you'll need to use two microphones:
+- One microphone (preferably the Logitech Yeti Blue) for the Teleprompter application
+- Another microphone (such as your webcam's built-in mic) for the actual meeting audio
 
-- **Voice Input**: Speak into your microphone; the assistant processes your speech in real-time.
-- **Pause/Resume Listening**: Use the spacebar or the pause/resume button in the interface to control listening.
-- **View Transcripts**: The assistant displays real-time transcripts of your speech.
-- **Receive Responses**: Get responses from the OpenAI API based on your input.
-- **Adjust Opacity**: Use the opacity slider to adjust the transparency of the floating prompter.
-- **Move the Prompter**: Click and drag the top bar to reposition the floating prompter on your screen.
+This setup ensures that the Teleprompter can capture your speech without interfering with your meeting audio.
+
+### Interacting with the Teleprompter
+
+- **Start Listening**: Click the "Start Listening" button to begin speech recognition.
+- **Voice Input**: Speak naturally; the Teleprompter processes your speech in real-time.
+- **Pause/Resume**: Use the spacebar or the on-screen button to control listening.
+- **View Transcripts and Suggestions**: Read the real-time transcripts and AI suggestions on the floating interface.
+- **Adjust Opacity**: Use the slider to change the transparency of the floating prompter.
+- **Reposition**: Click and drag the top bar to move the floating prompter on your screen.
+
+By leveraging these features, you can maintain natural eye contact and body language while having the support of an intelligent, real-time teleprompter.
 
 ## Configuration
 
@@ -285,21 +305,44 @@ We welcome contributions from the community! To contribute:
 
    - Navigate to the original repository and open a pull request.
 
+## Environment and Compatibility
+
+The OpenAI Virtual Teleprompter has been developed and tested specifically for the following environment:
+
+- **Operating System**: Linux Mint
+- **Microphone**: Configured for Logitech Yeti Blue microphone
+- **Platform**: Not cross-platform (currently Linux-specific)
+
+### Important Notes:
+
+1. **Linux Compatibility**: The application is currently optimized for Linux Mint and may not function correctly on other operating systems without modifications.
+
+2. **Microphone Configuration**: While the software is configured for the Logitech Yeti Blue microphone, it may work with other high-quality microphones. However, optimal performance is not guaranteed with other models.
+
+3. **Dual Microphone Setup for Virtual Meetings**: When using the Teleprompter during virtual meetings, you must use two separate microphones:
+   - One dedicated to the Teleprompter application (preferably the Logitech Yeti Blue)
+   - Another for your meeting audio (e.g., your webcam's built-in microphone)
+
+4. **Performance Considerations**: The application's performance may vary depending on your system specifications and the quality of your audio input.
+
+5. **Future Development**: While currently Linux-specific, future versions may aim for cross-platform compatibility. Contributions towards this goal are welcome!
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-- **OpenAI**: For providing the API that powers the assistant.
-- **Electron**: For enabling the cross-platform desktop application.
-- **Contributors**: Thanks to everyone who has contributed to this project.
-- **Community**: For the support and feedback.
+- **OpenAI**: For providing the powerful API that drives our intelligent teleprompter.
+- **Electron**: For the framework that enables our desktop application interface.
+- **PyAudio**: For reliable audio input processing in Python.
+- **Contributors**: A heartfelt thanks to all who have contributed to this project.
+- **Community**: For the ongoing support, feedback, and inspiration.
 
 ---
 
-*Feel free to open an issue if you have questions or need assistance!*
+*We welcome your questions, feedback, and contributions! Feel free to open an issue if you need assistance or have suggestions for improvement.*
 
 ---
 
-If you have any other files or information you'd like to include or if there are specific sections you'd like to expand upon, please let me know, and I'll update the README accordingly.
+For any additional information or specific sections you'd like to expand upon, please don't hesitate to ask. We're committed to making this README as informative and helpful as possible.
