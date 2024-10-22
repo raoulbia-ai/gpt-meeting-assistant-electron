@@ -343,6 +343,26 @@ This project is licensed under the [MIT License](LICENSE).
 
 *We welcome your questions, feedback, and contributions! Feel free to open an issue if you need assistance or have suggestions for improvement.*
 
+## Running the Application
+
+To run the OpenAI Virtual Teleprompter, you'll need to use two terminal windows:
+
+1. **Terminal 1 - Backend Server:**
+   Navigate to the `backend` directory and start the Voice Assistant Python script:
+   ```bash
+   cd backend
+   python voice_assistant.py
+   ```
+   This will start the backend server.
+
+2. **Terminal 2 - Electron App:**
+   In a new terminal window, navigate to the root directory of the project and launch the Electron app:
+   ```bash
+   npm start
+   ```
+
+Make sure to start the backend server (Terminal 1) before launching the Electron app (Terminal 2).
+
 ---
 
 For any additional information or specific sections you'd like to expand upon, please don't hesitate to ask. We're committed to making this README as informative and helpful as possible.
