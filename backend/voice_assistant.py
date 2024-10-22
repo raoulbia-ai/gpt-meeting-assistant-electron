@@ -32,8 +32,7 @@ class VoiceAssistant:
         self.websocket_manager = websocket_manager
         self.response_processor = response_processor
 
-        self.logger = logging.getLogger('voice_assistant')
-        setup_logging('voice_assistant')
+        self.logger = setup_logging('voice_assistant')
         self.logger.info("VoiceAssistant initialized")
 
         self.process_audio_task = None
