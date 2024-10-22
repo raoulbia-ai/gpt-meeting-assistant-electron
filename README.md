@@ -311,17 +311,13 @@ We welcome contributions from the community! To contribute:
 
 ## Environment and Compatibility
 
-The OpenAI Virtual Teleprompter has been developed and tested specifically for the following environment:
-
-- **Operating System**: Linux Mint
-- **Microphone**: Configured for Logitech Yeti Blue microphone
-- **Platform**: Not cross-platform (currently Linux-specific)
+The OpenAI Virtual Teleprompter has been developed and tested exclusively on Linux Mint. It is not designed for or tested on any other operating systems.
 
 ### Important Notes:
 
-1. **Linux Compatibility**: The application is currently optimized for Linux Mint and may not function correctly on other operating systems without modifications.
+1. **Linux Mint Exclusivity**: This application is specifically designed for Linux Mint and has not been tested or configured for any other operating system, including other Linux distributions, MacOS, or Windows.
 
-2. **Microphone Configuration**: While the software is configured for the Logitech Yeti Blue microphone, it may work with other high-quality microphones. However, optimal performance is not guaranteed with other models.
+2. **Microphone Configuration**: The software is optimized for use with the Logitech Yeti Blue microphone. While it may function with other microphones, optimal performance is only guaranteed with the specified model.
 
 3. **Dual Microphone Setup for Virtual Meetings**: When using the Teleprompter during virtual meetings, you must use two separate microphones:
    - One dedicated to the Teleprompter application (preferably the Logitech Yeti Blue)
@@ -329,7 +325,7 @@ The OpenAI Virtual Teleprompter has been developed and tested specifically for t
 
 4. **Performance Considerations**: The application's performance may vary depending on your system specifications and the quality of your audio input.
 
-5. **Future Development**: While currently Linux-specific, future versions may aim for cross-platform compatibility. Contributions towards this goal are welcome!
+5. **No Cross-Platform Support**: This application is not cross-platform and is not intended for use on any system other than Linux Mint. There are currently no plans to extend support to other operating systems or platforms.
 
 ## License
 
