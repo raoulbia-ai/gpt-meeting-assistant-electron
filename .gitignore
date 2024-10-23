@@ -142,3 +142,4 @@ backend/logs
 .aider*
 dist/
 docs/
+claude-3.5-sonnet
