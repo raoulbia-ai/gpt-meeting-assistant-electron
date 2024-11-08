@@ -34,10 +34,9 @@ class WebSocketManager:
             self.logger.error(f"Error: {e}")
         finally:
             # Check if websocket is still in the set before removing
-            if websocket in self.clients:
+            if websocket in the self.clients:
                 self.clients.remove(websocket)
             self.logger.info(f"Client removed: {websocket.remote_address}")
-
 
     async def process_message(self, data, websocket):
         if data['type'] == 'control':
