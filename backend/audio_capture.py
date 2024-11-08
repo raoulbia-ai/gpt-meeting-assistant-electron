@@ -2,7 +2,6 @@ from pydub import AudioSegment
 import functools
 import io
 import pyaudio
-import webrtcvad
 import numpy as np
 import logging
 from common_logging import setup_logging
@@ -22,7 +21,6 @@ class AudioCapture:
         self.chunk = int(self.rate * self.frame_duration_ms / 1000)  # Frames per buffer
         self.p = pyaudio.PyAudio()
         self.stream = None
-        self.vad = webrtcvad.Vad(1)  # Aggressiveness level from 0 to 3
         self.device_index = None
         self.logger = logging.getLogger('audio_capture')
 
@@ -36,6 +34,12 @@ class AudioCapture:
         self.logger.info("AudioCapture initialized")
         self.logger.info(f"Speech frames threshold set to {self.speech_frames_threshold} frames")
 
+        # Buffer to store audio data
+        self.audio_buffer = b""
+        self.buffer_ready = asyncio.Event()
+        self.min_buffer_size = config.min_buffer_size
+        self.max_buffer_wait_time = config.max_buffer_wait_time
+        self.last_audio_time = 0
 
     def select_audio_device(self):
         self.logger.info("Selecting audio device")
@@ -131,8 +135,8 @@ class AudioCapture:
             for frame in frames:
                 self.logger.debug(f"Processing frame of length: {len(frame)} bytes (expected: {expected_frame_length} bytes)")
                 if len(frame) == expected_frame_length:
-                    is_speech_frame = self.vad.is_speech(frame, self.rate)
-                    self.logger.debug(f"VAD result for frame: {is_speech_frame}")
+                    is_speech_frame = self.detect_audio_level(frame)
+                    self.logger.debug(f"Audio level detection result for frame: {is_speech_frame}")
                     if is_speech_frame:
                         break  # If any frame is speech, consider the whole segment as speech
 
@@ -141,14 +145,20 @@ class AudioCapture:
             else:
                 self.speech_frames_count = max(0, self.speech_frames_count - 1)
 
-            self.logger.debug(f"VAD speech: {is_speech_frame}, Speech frames: {self.speech_frames_count}, Threshold: {self.speech_frames_threshold}")
+            self.logger.debug(f"Audio level detection: {is_speech_frame}, Speech frames: {self.speech_frames_count}, Threshold: {self.speech_frames_threshold}")
             return self.speech_frames_count >= self.speech_frames_threshold
 
         except Exception as e:
-            self.logger.error(f"Error in VAD: {str(e)}", exc_info=True)
+            self.logger.error(f"Error in audio level detection: {str(e)}", exc_info=True)
             self.logger.debug(f"Audio segment details: length={len(audio_segment)}, first few bytes: {audio_segment[:20]}")
             return False
-        
+
+    def detect_audio_level(self, frame):
+        audio_data = np.frombuffer(frame, dtype=np.int16)
+        rms = np.sqrt(np.mean(audio_data**2))
+        threshold = 500  # Adjust this threshold based on your requirements
+        return rms > threshold
+
     def stop_stream(self):
         if self.stream is not None:
             self.logger.info("Stopping audio stream")

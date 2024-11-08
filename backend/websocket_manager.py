@@ -51,6 +51,10 @@ class WebSocketManager:
             elif action in ['resume', 'resume_listening']:
                 await self.assistant.resume()  # Call the assistant's resume method
                 self.logger.info("Listening resumed")
+            elif action == 'stop_listening':
+                await self.assistant.stop_listening()
+                self.logger.info("Listening stopped")
+                await self.broadcast_status("idle", False)
             else:
                 self.logger.warning(f"Unknown action received: {action}")
 
