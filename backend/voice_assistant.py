@@ -326,6 +326,9 @@ class VoiceAssistant:
         if self.is_running:
             self.is_running = False
             self.logger.info("VoiceAssistant stopped listening")
+            # Check if there is any remaining audio data in the buffer
+            if self.audio_buffer:
+                await self.send_buffer_to_api()
             # Cancel the process_audio task
             if self.process_audio_task:
                 self.process_audio_task.cancel()
