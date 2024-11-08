@@ -127,7 +127,7 @@ class VoiceAssistant:
 
                     await self.websocket_manager.broadcast_status("listening" if is_speech else "idle", is_speech)
 
-                    if is_speech:
+                    if is_speech and not self.audio_capture.speaker_audio_detected:
                         self.audio_buffer += audio_chunk
                         self.last_audio_time = time.time()
                         self.logger.debug(f"Speech detected. Buffer size: {len(self.audio_buffer)}")

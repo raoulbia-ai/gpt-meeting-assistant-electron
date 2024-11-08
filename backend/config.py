@@ -24,3 +24,7 @@ class Config:
         self.voice = "alloy"
         self.temperature = 0.6
         self.question_starters = ['what', 'when', 'where', 'who', 'why', 'how', 'can', 'could', 'would', 'will', 'do', 'does', 'is', 'are']
+
+        # Adjust VAD parameters to reduce sensitivity to speaker audio
+        self.vad_aggressiveness = 1  # Aggressiveness level from 0 to 3
+        self.speaker_audio_threshold = 0.1  # Adjust this threshold as needed

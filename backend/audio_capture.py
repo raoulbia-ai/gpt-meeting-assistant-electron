@@ -36,6 +36,10 @@ class AudioCapture:
         self.logger.info("AudioCapture initialized")
         self.logger.info(f"Speech frames threshold set to {self.speech_frames_threshold} frames")
 
+        # Mechanism to differentiate between speaker audio and microphone input
+        self.speaker_audio_threshold = 0.1  # Adjust this threshold as needed
+        self.speaker_audio_detected = False
+
 
     def select_audio_device(self):
         self.logger.info("Selecting audio device")
@@ -113,6 +117,12 @@ class AudioCapture:
         rms = audio_segment.rms
         self.logger.debug(f"Audio RMS: {rms}")
 
+        # Detect speaker audio
+        if rms > self.speaker_audio_threshold:
+            self.speaker_audio_detected = True
+        else:
+            self.speaker_audio_detected = False
+
         return audio_data
 
     async def is_speech(self, audio_segment):
@@ -136,7 +146,7 @@ class AudioCapture:
                     if is_speech_frame:
                         break  # If any frame is speech, consider the whole segment as speech
 
-            if is_speech_frame:
+            if is_speech_frame and not self.speaker_audio_detected:
                 self.speech_frames_count += 1
             else:
                 self.speech_frames_count = max(0, self.speech_frames_count - 1)
