@@ -31,11 +31,17 @@ class AudioCapture:
         self.speech_frames_threshold = int(0.3 * frames_per_second)  # Reduced from 0.5 to 0.3 seconds
         self.speech_frames_count = 0
 
+        # Volume threshold
+        self.volume_threshold = config.volume_threshold
+
         # self.setup_logging(debug_to_console)
         self.logger = setup_logging('audio_capture')
         self.logger.info("AudioCapture initialized")
         self.logger.info(f"Speech frames threshold set to {self.speech_frames_threshold} frames")
 
+    def set_volume_threshold(self, threshold):
+        self.volume_threshold = threshold
+        self.logger.info(f"Volume threshold set to {self.volume_threshold}")
 
     def select_audio_device(self):
         self.logger.info("Selecting audio device")
@@ -112,6 +118,10 @@ class AudioCapture:
         
         rms = audio_segment.rms
         self.logger.debug(f"Audio RMS: {rms}")
+
+        if rms < self.volume_threshold:
+            self.logger.debug(f"Audio below volume threshold: {rms} < {self.volume_threshold}")
+            return b''  # Ignore audio below the volume threshold
 
         return audio_data
 

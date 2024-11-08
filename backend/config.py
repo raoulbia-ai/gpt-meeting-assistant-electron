@@ -24,3 +24,4 @@ class Config:
         self.voice = "alloy"
         self.temperature = 0.6
         self.question_starters = ['what', 'when', 'where', 'who', 'why', 'how', 'can', 'could', 'would', 'will', 'do', 'does', 'is', 'are']
+        self.volume_threshold = 500  # Default volume threshold

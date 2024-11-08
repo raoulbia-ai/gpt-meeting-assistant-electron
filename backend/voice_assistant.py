@@ -266,6 +266,13 @@ class VoiceAssistant:
                         await self.websocket_manager.broadcast_status("ready", False)
                 else:
                     self.logger.debug(f"Received response type: {response['type']}")
+                
+                # Adjust volume threshold based on AI's output volume
+                if 'volume' in response:
+                    new_threshold = self.calculate_dynamic_threshold(response['volume'])
+                    self.audio_capture.set_volume_threshold(new_threshold)
+                    self.logger.info(f"Adjusted volume threshold to {new_threshold}")
+
         except asyncio.CancelledError:
             self.logger.info("API response handling task cancelled")
         except Exception as e:
@@ -341,6 +348,14 @@ class VoiceAssistant:
         if self.process_audio_task:
             self.process_audio_task.cancel()
             self.process_audio_task = None
+
+    def calculate_dynamic_threshold(self, ai_output_volume):
+        # Implement dynamic threshold calculation logic here
+        # For example, you can set a base threshold and adjust it based on AI's output volume
+        base_threshold = 500
+        adjustment_factor = 0.1
+        new_threshold = base_threshold + (ai_output_volume * adjustment_factor)
+        return new_threshold
 
 if __name__ == "__main__":
     config = Config()
