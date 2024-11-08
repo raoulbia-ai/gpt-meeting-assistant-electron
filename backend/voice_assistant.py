@@ -41,6 +41,8 @@ class VoiceAssistant:
         self._is_recording = False
         self._is_processing = False
 
+        self.is_ai_speaking = False
+
     async def pause(self):
         if self.is_paused:
             return  # Already paused
@@ -113,7 +115,7 @@ class VoiceAssistant:
         self.logger.info("Started audio processing")
         try:
             while self.is_running:
-                if self.is_paused:
+                if self.is_paused or self.is_ai_speaking:
                     await asyncio.sleep(0.01)
                     continue
                 try:
@@ -184,6 +186,7 @@ class VoiceAssistant:
             audio_segment = audio_segment.set_channels(1)
             resampled_audio_buffer = audio_segment.raw_data
 
+            self.is_ai_speaking = True
             await self.send_audio_to_api(resampled_audio_buffer)
             self.audio_buffer = b""
             self.buffer_ready.clear()
@@ -252,6 +255,8 @@ class VoiceAssistant:
                     self.logger.debug("waiting_for_response set to False")
                     await self.websocket_manager.broadcast_status("idle", False)
                     self.response_processor.clear_transcript()
+                    self.is_ai_speaking = False
+                    await asyncio.sleep(1)  # Small delay before resuming input processing
                 elif response['type'] == 'error':
                     error_message = response.get('error', {}).get('message', 'Unknown error')
                     error_code = response.get('error', {}).get('code', 'Unknown code')

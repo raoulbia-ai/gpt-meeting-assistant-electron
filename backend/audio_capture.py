@@ -36,6 +36,8 @@ class AudioCapture:
         self.logger.info("AudioCapture initialized")
         self.logger.info(f"Speech frames threshold set to {self.speech_frames_threshold} frames")
 
+        self.is_ai_speaking = False  # Initialize the flag
+
 
     def select_audio_device(self):
         self.logger.info("Selecting audio device")
@@ -86,6 +88,10 @@ class AudioCapture:
         if self.stream is None:
             self.logger.error("Audio stream is not initialized")
             raise RuntimeError("Audio stream is not initialized")
+
+        if self.is_ai_speaking:
+            self.logger.info("AI is speaking, skipping audio processing")
+            return b''  # Return empty bytes to skip processing
 
         try:
             audio_data = self.stream.read(self.chunk, exception_on_overflow=False)
