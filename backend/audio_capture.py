@@ -119,6 +119,12 @@ class AudioCapture:
         rms = audio_segment.rms
         self.logger.debug(f"Audio RMS: {rms}")
 
+        # Ensure a minimum buffer size of 100ms of audio
+        min_buffer_size = int(self.rate * self.bytes_per_sample * 0.1)  # 100ms of audio
+        if len(audio_data) < min_buffer_size:
+            self.logger.info(f"Audio buffer too small. Expected at least {min_buffer_size} bytes, but got {len(audio_data)} bytes.")
+            return b''
+
         return audio_data
 
     async def is_speech(self, audio_segment):

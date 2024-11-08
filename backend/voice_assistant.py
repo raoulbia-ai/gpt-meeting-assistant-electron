@@ -162,8 +162,8 @@ class VoiceAssistant:
             self.logger.info("Stopped audio processing")
 
     async def send_buffer_to_api(self):
-        if len(self.audio_buffer) == 0:
-            self.logger.info("Audio buffer is empty. Not sending to API.")
+        if len(self.audio_buffer) < self.min_buffer_size:
+            self.logger.info(f"Audio buffer is too small. Expected at least {self.min_buffer_size} bytes, but got {len(self.audio_buffer)} bytes.")
             self.audio_buffer = b""
             self.buffer_ready.clear()
             return

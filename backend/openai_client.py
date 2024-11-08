@@ -74,6 +74,15 @@ class OpenAIClient:
             self.logger.error(f"Invalid audio buffer type: {type(audio_buffer)}. Expected bytes.")
             return
 
+        if len(audio_buffer) == 0:
+            self.logger.info("Audio buffer is empty. Skipping send.")
+            return
+
+        min_buffer_size = int(self.config.rate * self.config.sample_width * 0.1)  # 100ms of audio
+        if len(audio_buffer) < min_buffer_size:
+            self.logger.info(f"Audio buffer too small. Expected at least {min_buffer_size} bytes, but got {len(audio_buffer)} bytes.")
+            return
+
         try:
             encoded_audio = self.encode_audio(audio_buffer)
             message = {
