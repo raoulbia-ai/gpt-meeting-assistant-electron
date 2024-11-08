@@ -84,6 +84,7 @@ class VoiceAssistant:
             await self.openai_client.connect()
 
             self.audio_capture.select_audio_device()
+            self.audio_capture.start_stream()  # Ensure the audio stream starts
             self.logger.info("Voice Assistant is ready.")
             await self.websocket_manager.broadcast_status("ready", False)
 
