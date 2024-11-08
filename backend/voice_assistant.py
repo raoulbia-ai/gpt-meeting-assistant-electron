@@ -160,7 +160,7 @@ class VoiceAssistant:
             self._is_processing = False
             self.logger.info("Stopped audio processing")
 
-    async def send_buffer_to_api(self):
+    async def send_buffer_to_api(self, force_commit=False):
         if len(self.audio_buffer) == 0:
             self.logger.info("Audio buffer is empty. Not sending to API.")
             self.audio_buffer = b""
@@ -192,6 +192,9 @@ class VoiceAssistant:
             asyncio.create_task(self.cooldown_timer())
         except Exception as e:
             self.logger.error(f"Error in send_buffer_to_api: {str(e)}", exc_info=True)
+            if force_commit:
+                self.logger.error("Forced commit failed. No speech detected despite user input.")
+                await self.websocket_manager.broadcast_error("No speech detected despite user input", "NoSpeechDetected")
 
     async def send_audio_to_api(self, buffer):
         if self.max_api_calls != -1 and self.api_calls_made >= self.max_api_calls:
@@ -329,6 +332,10 @@ class VoiceAssistant:
             self.audio_capture.stop_stream()
             # Broadcast status update
             await self.websocket_manager.broadcast_status("idle", False)
+
+    async def force_commit_audio(self):
+        self.logger.info("Force committing audio buffer")
+        await self.send_buffer_to_api(force_commit=True)
 
     async def cleanup(self):
         # Add any cleanup operations here
