@@ -102,7 +102,7 @@ class WebSocketManager:
 
     async def broadcast(self, message):
         disconnected_clients = []
-        for client in self.clients:
+        for client in list(self.clients):
             try:
                 await client.send(message)
             except websockets.exceptions.ConnectionClosed:

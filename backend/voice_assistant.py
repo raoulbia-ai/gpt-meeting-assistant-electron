@@ -151,6 +151,12 @@ class VoiceAssistant:
                             await self.send_buffer_to_api()
 
                     await asyncio.sleep(0.01)
+                except RuntimeError as e:
+                    if "Set changed size during iteration" in str(e):
+                        self.logger.error(f"Error in audio processing: {e}")
+                        await self.websocket_manager.broadcast_error("Set changed size during iteration", "RuntimeError")
+                    else:
+                        self.logger.exception(f"Error in audio processing: {str(e)}")
                 except Exception as e:
                     self.logger.exception(f"Error in audio processing: {str(e)}")
         except asyncio.CancelledError:
