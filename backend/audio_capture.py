@@ -146,7 +146,7 @@ class AudioCapture:
                     if is_speech_frame:
                         break  # If any frame is speech, consider the whole segment as speech
 
-            if is_speech_frame and not self.speaker_audio_detected:
+            if is_speech_frame:
                 self.speech_frames_count += 1
             else:
                 self.speech_frames_count = max(0, self.speech_frames_count - 1)
