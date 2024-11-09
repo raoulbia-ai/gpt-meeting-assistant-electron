@@ -16,6 +16,7 @@ class Config:
         self.chunk = int(self.rate * self.frame_duration_ms / 1000)
 
         # Removed websocket_host and websocket_port as they are hardcoded in websocket_manager.py
+        self.speaker_device_index = None  # Add this line for speaker device index
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.api_url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01"
         self.instructions = """You are a helpful assistant. You are helping me answer interview questions.

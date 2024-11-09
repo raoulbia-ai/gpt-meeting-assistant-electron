@@ -23,7 +23,7 @@ class AudioCapture:
         self.p = pyaudio.PyAudio()
         self.stream = None
         self.vad = webrtcvad.Vad(1)  # Aggressiveness level from 0 to 3
-        self.device_index = None
+        self.device_index = config.speaker_device_index  # Use speaker device index from config
         self.logger = logging.getLogger('audio_capture')
 
         # Speech detection parameters
@@ -37,27 +37,27 @@ class AudioCapture:
         self.logger.info(f"Speech frames threshold set to {self.speech_frames_threshold} frames")
 
 
-    def select_audio_device(self):
+    def select_audio_device(self, is_speaker=False):
         self.logger.info("Selecting audio device")
-        print("Available audio input devices:")
-        input_devices = []
+        print("Available audio devices:")
+        devices = []
         for i in range(self.p.get_device_count()):
             dev = self.p.get_device_info_by_index(i)
-            if dev.get('maxInputChannels') > 0:
-                input_devices.append((i, dev.get('name')))
+            if (is_speaker and dev.get('maxOutputChannels') > 0) or (not is_speaker and dev.get('maxInputChannels') > 0):
+                devices.append((i, dev.get('name')))
                 print(f"Device {i}: {dev.get('name')}")
         
         while True:
             try:
-                device_index_input = input("Enter the device index for your microphone: ")
+                device_index_input = input("Enter the device index for your device: ")
                 self.device_index = int(device_index_input)
                 dev_info = self.p.get_device_info_by_index(self.device_index)
-                if dev_info.get('maxInputChannels') > 0:
+                if (is_speaker and dev_info.get('maxOutputChannels') > 0) or (not is_speaker and dev_info.get('maxInputChannels') > 0):
                     print(f"Selected device: {dev_info.get('name')}")
                     self.logger.info(f"Audio device selected: {dev_info.get('name')}")
                     return self.device_index
                 else:
-                    print("Selected device is not an input device. Please try again.")
+                    print("Selected device is not a valid device. Please try again.")
             except (ValueError, IndexError):
                 print("Invalid input. Please enter a valid device index.")
 
