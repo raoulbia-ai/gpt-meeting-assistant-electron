@@ -28,7 +28,7 @@ class AudioCapture:
 
         # Speech detection parameters
         frames_per_second = 1000 / self.frame_duration_ms
-        self.speech_frames_threshold = int(0.3 * frames_per_second)  # Reduced from 0.5 to 0.3 seconds
+        self.speech_frames_threshold = int(0.1 * frames_per_second)  # Reduced from 0.5 to 0.3 seconds
         self.speech_frames_count = 0
 
         # self.setup_logging(debug_to_console)
