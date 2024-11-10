@@ -7,7 +7,6 @@ from openai_client import OpenAIClient
 from websocket_manager import WebSocketManager
 from response_processor import ResponseProcessor
 from config import Config
-import logging
 from common_logging import setup_logging
 
 class VoiceAssistant:

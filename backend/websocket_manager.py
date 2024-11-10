@@ -1,4 +1,3 @@
-import asyncio
 import websockets
 import json
 from common_logging import setup_logging
@@ -15,7 +14,7 @@ class WebSocketManager:
         self.server = await websockets.serve(self.handler, 'localhost', 8000)
         self.logger.info("WebSocket server started on ws://localhost:8000")
 
-    async def handler(self, websocket, path):
+    async def handler(self, websocket):
         self.clients.add(websocket)
         self.logger.info(f"Client connected: {websocket.remote_address}")
         # Send initial status message

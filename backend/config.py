@@ -6,17 +6,17 @@ class Config:
         self.max_api_calls = -1  # Set from environment or parameters
         self.silence_threshold = 5
         self.cooldown_duration = 10
-        self.min_buffer_size = 32000  # Reduced from 16000 bytes
+        self.min_buffer_size = 32000  
         self.max_buffer_wait_time = 1 
         self.rate = 48000  # Keep sample rate at 48000 Hz
         self.frame_duration_ms = 20  # Reduced from 30 ms
         self.channels = 1
-        self.format = pyaudio.paInt16  # Add this line
+        self.format = pyaudio.paInt16  
         self.sample_width = pyaudio.get_sample_size(self.format)
         self.chunk = int(self.rate * self.frame_duration_ms / 1000)
 
         # Removed websocket_host and websocket_port as they are hardcoded in websocket_manager.py
-        self.speaker_device_index = None  # Add this line for speaker device index
+        self.speaker_device_index = None  
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.api_url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01"
         self.instructions = """You are a helpful assistant. You are helping me answer interview questions.

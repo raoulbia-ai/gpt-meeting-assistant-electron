@@ -1,9 +1,7 @@
 import os
 import json
-import asyncio
 import websockets
 import base64
-import logging
 import time
 from common_logging import setup_logging
 
