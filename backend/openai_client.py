@@ -43,10 +43,7 @@ class OpenAIClient:
                 "input_audio_format": "pcm16",
                 "output_audio_format": "pcm16",
                 "turn_detection": {
-                    "type": "server_vad",
-                    "threshold": 0.5,
-                    "prefix_padding_ms": 300,
-                    "silence_duration_ms": 200
+                    "type": "manual"
                 },
                 "temperature": self.config.temperature
             }
@@ -91,6 +88,14 @@ class OpenAIClient:
             }
             await self.websocket.send(json.dumps(commit_message))
             self.logger.debug("Sent commit message")
+
+            # Add response.create call right after committing audio
+            response_create_message = {
+                "event_id": self.generate_event_id(),
+                "type": "response.create"
+            }
+            await self.websocket.send(json.dumps(response_create_message))
+            self.logger.debug("Sent response.create message")
 
         except Exception as e:
             self.logger.error(f"Error in send_audio: {str(e)}")

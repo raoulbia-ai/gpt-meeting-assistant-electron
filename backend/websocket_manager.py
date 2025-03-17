@@ -34,10 +34,9 @@ class WebSocketManager:
             self.logger.error(f"Error: {e}")
         finally:
             # Check if websocket is still in the set before removing
-            if websocket in self.clients:
+            if websocket in the self.clients:
                 self.clients.remove(websocket)
             self.logger.info(f"Client removed: {websocket.remote_address}")
-
 
     async def process_message(self, data, websocket):
         if data['type'] == 'control':
@@ -51,6 +50,10 @@ class WebSocketManager:
             elif action in ['resume', 'resume_listening']:
                 await self.assistant.resume()  # Call the assistant's resume method
                 self.logger.info("Listening resumed")
+            elif action == 'stop_listening':
+                await self.assistant.stop_listening()
+                self.logger.info("Listening stopped")
+                await self.broadcast_status("idle", False)
             else:
                 self.logger.warning(f"Unknown action received: {action}")
 
