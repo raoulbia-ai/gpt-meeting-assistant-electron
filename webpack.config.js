@@ -18,7 +18,11 @@ module.exports = {
             presets: ['@babel/preset-env', '@babel/preset-react']
           }
         }
-      }
+      }, // End of JSX rule
+      { // Start of CSS rule
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      } // End of CSS rule
     ]
   },
   resolve: {

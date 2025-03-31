@@ -1,22 +1,24 @@
 {
-  "name": "OpenAI Virtual Prompter",
+  "name": "openai-virtual-prompter",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
-"scripts": {
-  "start": "npm run build && electron .",
-  "build": "webpack --config webpack.config.js",
-  "electron": "electron ."
-},
+  "scripts": {
+    "start": "npm run build && electron .",
+    "build": "webpack --config webpack.config.js",
+    "electron": "electron ."
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
+    "css-loader": "^7.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-draggable": "^4.4.6"
+    "react-draggable": "^4.4.6",
+    "style-loader": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.8",

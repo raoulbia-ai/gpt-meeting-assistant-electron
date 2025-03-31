@@ -1,0 +1,149 @@
+/* Base container */
+.prompter-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 600px;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  /* Opacity will be applied via inline style based on state */
+}
+
+/* Header */
+.prompter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  /* Background color will be applied via inline style based on opacity */
+  -webkit-app-region: drag; /* Allow dragging the window via the header */
+}
+
+.drag-handle {
+  cursor: move;
+  margin-right: 8px;
+  -webkit-app-region: drag; /* Ensure handle is draggable */
+}
+
+.header-controls button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: 8px; /* Use margin-left for spacing between buttons */
+  -webkit-app-region: no-drag; /* Prevent buttons from being drag regions */
+}
+
+/* Main content area */
+.prompter-content {
+  padding: 16px;
+}
+
+/* Buttons */
+.prompter-button {
+  width: 100%;
+  padding: 12px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  -webkit-app-region: no-drag;
+  margin-bottom: 16px; /* Add default bottom margin */
+}
+
+.prompter-button:last-child {
+  margin-bottom: 0; /* Remove margin for the last button in a group */
+}
+
+.connect-button {
+  background-color: rgba(66, 153, 225, var(--bg-opacity, 0.8)); /* Default opacity */
+}
+
+.listening-button-active {
+  background-color: rgba(245, 101, 101, var(--bg-opacity, 0.8));
+}
+
+.listening-button-inactive {
+  background-color: rgba(66, 153, 225, var(--bg-opacity, 0.8));
+}
+
+.prompter-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* Response display */
+.response-display {
+  height: 200px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 18px;
+  color: white;
+  line-height: 1.5;
+  /* Background color will be applied via inline style based on opacity */
+}
+
+.response-display pre {
+  white-space: pre-wrap;
+  color: white;
+  margin: 0;
+}
+
+.response-display .current-response-text {
+ /* Style for the streaming part, if needed */
+ color: #cccccc; /* Slightly different color for streaming text */
+}
+
+
+/* Status bar */
+.status-bar {
+  padding: 2px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+/* Opacity Slider */
+.opacity-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.opacity-control input[type="range"] {
+  width: 100%;
+  -webkit-app-region: no-drag;
+}
+
+/* Error Alert */
+.error-alert {
+  position: absolute; /* Position relative to the container */
+  bottom: 10px; /* Adjust positioning */
+  left: 10px;
+  right: 10px;
+  background-color: rgba(254, 215, 215, 0.9);
+  color: #9b2c2c;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  z-index: 10; /* Ensure it's above other content */
+}
+
+.error-alert-close-button {
+  background: none;
+  border: none;
+  color: #9b2c2c;
+  cursor: pointer;
+  float: right;
+  font-size: 1rem;
+  line-height: 1; /* Adjust line height for better alignment */
+  padding: 0;
+}

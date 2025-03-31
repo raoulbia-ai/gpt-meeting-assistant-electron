@@ -108,6 +108,18 @@ This screenshot showcases the OpenAI Virtual Teleprompter interface, featuring:
    pip install -r requirements.txt
    ```
 
+   - **On Windows**:
+     - Installing `PyAudio` on Windows can sometimes be tricky if you don't have the necessary C++ build tools.
+     - **Method 1 (Recommended): Install Microsoft C++ Build Tools.** Download and install the "Build Tools for Visual Studio" from the [Visual Studio website](https://visualstudio.microsoft.com/visual-cpp-build-tools/). Make sure to select the "C++ build tools" workload during installation. After installation, try `pip install pyaudio` again.
+     - **Method 2: Use pre-compiled wheels.** If the first method fails, you can find unofficial pre-compiled PyAudio wheels for Windows [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio). Download the wheel file (`.whl`) corresponding to your Python version and system architecture (e.g., `PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl` for Python 3.9 64-bit). Then, install it using pip:
+       ```bash
+       pip install path/to/your/downloaded/PyAudio‑0.2.xx‑cpXX‑cpXX‑win_amd64.whl
+       ```
+     - After successfully installing PyAudio, install the rest of the requirements:
+       ```bash
+       pip install -r requirements.txt
+       ```
+
 4. **Set Up Configuration**
 
    - **Environment Variables**:
@@ -196,6 +208,27 @@ This setup ensures that the Teleprompter can capture your speech without interfe
 - **Reposition**: Click and drag the top bar to move the floating prompter on your screen.
 
 By leveraging these features, you can maintain natural eye contact and body language while having the support of an intelligent, real-time teleprompter.
+
+### Interaction Flow
+
+Here's the typical interaction flow after starting the application:
+
+1.  **Initialization:** The user first starts the Python backend server in one terminal and then launches the Electron frontend application in another terminal.
+2.  **UI Appears:** A floating, transparent window (the "prompter") appears on the screen, set to always be on top. This window contains a "Start Listening" button, a response area, an API call counter, and an opacity slider.
+3.  **Start Listening:** The user clicks the "Start Listening" button to initiate the process.
+4.  **Audio Capture:** The application begins capturing audio from the configured microphone (preferably a Logitech Yeti Blue).
+5.  **Real-time Processing:**
+    *   The captured audio is sent to the Python backend via WebSockets.
+    *   The backend forwards the audio to the OpenAI API for speech-to-text conversion and potentially for generating intelligent suggestions or clarifications based on the `instructions` in `config.py`.
+    *   The processed text (transcription and/or suggestions) is sent back from the backend to the Electron frontend via WebSockets.
+6.  **Display:** The frontend displays the received text in the response area of the floating prompter window in real-time as the user speaks.
+7.  **User Interaction during Use:**
+    *   **Speaking:** The user speaks naturally, and the prompter updates with the transcription/suggestions.
+    *   **Pause/Resume:** The user can press the **Spacebar** at any time to toggle pausing and resuming the audio capture and processing.
+    *   **Reposition:** The user can click and drag the top bar of the floating window to move it anywhere on the screen.
+    *   **Adjust Opacity:** The user can use the slider within the UI to change the transparency of the prompter window.
+8.  **API Tracking:** The UI displays a counter showing the number of OpenAI API calls made during the session.
+
 
 ## Configuration
 
@@ -311,21 +344,19 @@ We welcome contributions from the community! To contribute:
 
 ## Environment and Compatibility
 
-The OpenAI Virtual Teleprompter has been developed and tested exclusively on Linux Mint. It is not designed for or tested on any other operating systems.
+The OpenAI Virtual Teleprompter is designed to be compatible with both Windows and Linux operating systems. While it may function with other microphones, optimal performance is generally achieved with high-quality microphones.
 
 ### Important Notes:
 
-1. **Linux Mint Exclusivity**: This application is specifically designed for Linux Mint and has not been tested or configured for any other operating system, including other Linux distributions, MacOS, or Windows.
+1. **Operating System Compatibility**: This application is designed to be compatible with both Windows and Linux.
 
-2. **Microphone Configuration**: The software is optimized for use with the Logitech Yeti Blue microphone. While it may function with other microphones, optimal performance is only guaranteed with the specified model.
+2. **Microphone Configuration**: The software may function with other microphones, but optimal performance is generally achieved with high-quality microphones.
 
-3. **Dual Microphone Setup for Virtual Meetings**: When using the Teleprompter during virtual meetings, you must use two separate microphones:
-   - One dedicated to the Teleprompter application (preferably the Logitech Yeti Blue)
+3. **Dual Microphone Setup for Virtual Meetings**: When using the Teleprompter during virtual meetings, you may need to use two separate microphones:
+   - One dedicated to the Teleprompter application (preferably a high-quality microphone)
    - Another for your meeting audio (e.g., your webcam's built-in microphone)
 
 4. **Performance Considerations**: The application's performance may vary depending on your system specifications and the quality of your audio input.
-
-5. **No Cross-Platform Support**: This application is not cross-platform and is not intended for use on any system other than Linux Mint. There are currently no plans to extend support to other operating systems or platforms.
 
 ## License
 
@@ -343,25 +374,56 @@ This project is licensed under the [MIT License](LICENSE).
 
 *We welcome your questions, feedback, and contributions! Feel free to open an issue if you need assistance or have suggestions for improvement.*
 
-## Running the Application
+## Running the Application (Development Mode)
 
-To run the OpenAI Virtual Teleprompter, you'll need to use two terminal windows:
+To run the OpenAI Virtual Teleprompter in development mode, you'll need to use two terminal windows:
 
-1. **Terminal 1 - Backend Server:**
-   Navigate to the `backend` directory and start the Voice Assistant Python script:
-   ```bash
-   cd backend
-   python voice_assistant.py
-   ```
-   This will start the backend server.
+1.  **Terminal 1 - Start the Backend Server:**
+    Navigate to the `backend` directory, activate your virtual environment (if you created one), and start the Python WebSocket server:
+    ```bash
+    cd backend
+    # Activate virtual environment (e.g., source venv/bin/activate or venv\Scripts\activate)
+    python start_websocket_server.py # Or voice_assistant.py if that's the main entry point
+    ```
+    Keep this terminal running.
 
-2. **Terminal 2 - Electron App:**
-   In a new terminal window, navigate to the root directory of the project and launch the Electron app:
-   ```bash
-   npm start
-   ```
+2.  **Terminal 2 - Start the Electron Frontend:**
+    In a new terminal window, navigate to the root directory of the project and launch the Electron app using npm:
+    ```bash
+    # Make sure you are in the project root directory
+    npm start
+    ```
+    This command typically runs the Electron application in development mode, often with hot-reloading enabled.
 
-Make sure to start the backend server (Terminal 1) before launching the Electron app (Terminal 2).
+Make sure the backend server (Terminal 1) is running before launching the Electron app (Terminal 2).
+
+## Building the Application (Production)
+
+To create distributable packages for Windows or Linux, use the provided build script. This script utilizes `electron-builder` to package the application.
+
+1.  **Navigate to the Project Root:**
+    Ensure you are in the main project directory in your terminal.
+
+2.  **Run the Build Script:**
+
+    *   **Build for the current OS:**
+        ```bash
+        ./utils/build.sh
+        ```
+        The script will attempt to detect your operating system (Linux or Windows) and build accordingly.
+
+    *   **Force build for a specific platform:**
+        ```bash
+        # Build for Windows
+        ./utils/build.sh --win
+
+        # Build for Linux
+        ./utils/build.sh --linux
+        ```
+        Use the `--win` or `--linux` flag to explicitly target a platform. Note that cross-compiling (e.g., building for Linux on Windows) might require additional setup like Docker. Refer to the `electron-builder` documentation for details.
+
+3.  **Find the Output:**
+    The build process will install dependencies, build frontend assets (if applicable), and then package the Electron application. The distributable files (e.g., `.exe` for Windows, `.AppImage` or `.deb` for Linux) will be located in the `dist` directory within the project root.
 
 ---
 
